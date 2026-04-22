@@ -1,0 +1,279 @@
+/**
+ * MZV Lightbox v2.0.0 — Enhanced Mode Styles
+ */
+
+/* ── Trigger wrapper ──────────────────────────────────────────────── */
+.mzv-lb-wrap {
+	position: relative;
+	display: inline-block;
+	cursor: zoom-in;
+}
+
+.mzv-lb-wrap img {
+	display: block;
+}
+
+/* Magnifier hover overlay (desktop) */
+.mzv-lb-hover {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.35));
+	opacity: 0;
+	transition: opacity .2s ease-out;
+	pointer-events: none;
+}
+
+.mzv-lb-hover::after {
+	content: '';
+	width: 28px;
+	height: 28px;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='8.5' cy='8.5' r='5.5'/%3E%3Cline x1='13' y1='13' x2='18' y2='18'/%3E%3Cline x1='6' y1='8.5' x2='11' y2='8.5'/%3E%3Cline x1='8.5' y1='6' x2='8.5' y2='11'/%3E%3C/svg%3E") center/contain no-repeat;
+	filter: drop-shadow(0 1px 2px rgba(0,0,0,.5));
+}
+
+.mzv-lb-wrap:hover .mzv-lb-hover {
+	opacity: 1;
+}
+
+/* Mobile zoom hint */
+.mzv-lb-mobile-hint {
+	position: absolute;
+	bottom: 8px;
+	right: 8px;
+	width: 22px;
+	height: 22px;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='8.5' cy='8.5' r='5.5'/%3E%3Cline x1='13' y1='13' x2='18' y2='18'/%3E%3Cline x1='6' y1='8.5' x2='11' y2='8.5'/%3E%3Cline x1='8.5' y1='6' x2='8.5' y2='11'/%3E%3C/svg%3E") center/contain no-repeat;
+	opacity: .6;
+	filter: drop-shadow(0 1px 2px rgba(0,0,0,.6));
+	pointer-events: none;
+}
+
+@media (hover: hover) {
+	.mzv-lb-mobile-hint { display: none; }
+}
+
+@media (hover: none) {
+	.mzv-lb-hover { display: none; }
+}
+
+/* Focus ring on trigger */
+.mzv-lb-wrap:focus-visible {
+	outline: 2px solid #0073aa;
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* ── Modal ────────────────────────────────────────────────────────── */
+#mzv-lb-modal {
+	--mzv-lb-duration: 200ms;
+	position: fixed;
+	inset: 0;
+	z-index: 2147483646;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+
+#mzv-lb-modal.is-visible {
+	display: flex;
+}
+
+/* Backdrop */
+.mzv-lb-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,.92);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	cursor: default;
+}
+
+/* Modal transitions */
+#mzv-lb-modal {
+	opacity: 0;
+	transition: opacity var(--mzv-lb-duration) ease-out;
+}
+
+#mzv-lb-modal.is-open {
+	opacity: 1;
+}
+
+/* Content area */
+.mzv-lb-content {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	max-width: 95vw;
+	max-height: 90vh;
+}
+
+/* Full-size image */
+.mzv-lb-full {
+	max-width: 95vw;
+	max-height: 85vh;
+	object-fit: contain;
+	transform: scale(.96);
+	transition: transform var(--mzv-lb-duration) ease-out;
+}
+
+#mzv-lb-modal.is-open .mzv-lb-full {
+	transform: scale(1);
+}
+
+/* Caption */
+.mzv-lb-caption {
+	margin-top: 8px;
+	padding: 4px 14px;
+	background: rgba(0,0,0,.6);
+	color: #fff;
+	font-size: .85rem;
+	line-height: 1.4;
+	border-radius: 999px;
+	max-width: 90vw;
+	text-align: center;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mzv-lb-caption.is-empty {
+	display: none;
+}
+
+/* Close button */
+.mzv-lb-close {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	z-index: 2;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: none;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3C/svg%3E") center/contain no-repeat;
+	filter: drop-shadow(0 1px 3px rgba(0,0,0,.7));
+	cursor: pointer;
+}
+
+.mzv-lb-close:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 4px;
+	border-radius: 2px;
+}
+
+/* Prev/Next arrows */
+.mzv-lb-prev,
+.mzv-lb-next {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: none;
+	background-color: rgba(0,0,0,.4);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 24px;
+	border-radius: 50%;
+	cursor: pointer;
+	color: #fff;
+	transition: background-color .15s;
+}
+
+.mzv-lb-prev:hover,
+.mzv-lb-next:hover {
+	background-color: rgba(0,0,0,.7);
+}
+
+.mzv-lb-prev {
+	left: 12px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 18 9 12 15 6'/%3E%3C/svg%3E");
+}
+
+.mzv-lb-next {
+	right: 12px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 18 15 12 9 6'/%3E%3C/svg%3E");
+}
+
+.mzv-lb-prev:focus-visible,
+.mzv-lb-next:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
+.mzv-lb-prev.is-hidden,
+.mzv-lb-next.is-hidden {
+	display: none;
+}
+
+/* Counter */
+.mzv-lb-counter {
+	position: absolute;
+	bottom: 12px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 2;
+	padding: 4px 12px;
+	background: rgba(0,0,0,.5);
+	color: #fff;
+	font-size: .8rem;
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+.mzv-lb-counter.is-hidden {
+	display: none;
+}
+
+/* Jump to recipe link */
+.mzv-lb-jump-link {
+	display: inline-block;
+	margin-top: 6px;
+	padding: 4px 14px;
+	background: rgba(255,255,255,.15);
+	color: #fff;
+	font-size: .8rem;
+	text-decoration: none;
+	border-radius: 999px;
+	cursor: pointer;
+	transition: background .15s;
+}
+
+.mzv-lb-jump-link:hover {
+	background: rgba(255,255,255,.25);
+	color: #fff;
+}
+
+.mzv-lb-jump-link.is-hidden {
+	display: none;
+}
+
+/* ── Body scroll lock ─────────────────────────────────────────────── */
+html.mzv-lb-open {
+	overflow: hidden;
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+	#mzv-lb-modal,
+	#mzv-lb-modal .mzv-lb-full {
+		transition: none !important;
+	}
+}
+
+/* ── Print ────────────────────────────────────────────────────────── */
+@media print {
+	#mzv-lb-modal,
+	.mzv-lb-hover,
+	.mzv-lb-mobile-hint {
+		display: none !important;
+	}
+}

@@ -3,7 +3,7 @@
  * Plugin Name: MZV Lightbox
  * Plugin URI:  https://github.com/mikezielonkadotcom/lightbox
  * Description: Pure-CSS, zero-JS lightbox for WordPress. Fast, lightweight, no render-blocking.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      Mike Zielonka Ventures
  * Author URI:  https://mikezielonka.com
  * License:     GPL-2.0-or-later
@@ -43,7 +43,7 @@ function mzv_lb_get_css() {
 	$close_svg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3C/svg%3E";
 
 	return <<<CSS
-/* MZV Lightbox v1.0.0 */
+/* MZV Lightbox v1.0.1 */
 html:has(input.mzv-lb-toggle:checked){overflow:hidden}
 .mzv-lb-toggle{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
 .mzv-lb-wrap{position:relative;display:inline-block;cursor:zoom-in}
@@ -54,16 +54,16 @@ html:has(input.mzv-lb-toggle:checked){overflow:hidden}
 .mzv-lb-mobile-hint{position:absolute;bottom:8px;right:8px;width:22px;height:22px;background:url("{$magnifier_svg}") center/contain no-repeat;opacity:.6;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));pointer-events:none}
 @media(hover:hover){.mzv-lb-mobile-hint{display:none}}
 @media(hover:none){.mzv-lb-hover{display:none}}
-.mzv-lb-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.92);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s ease-out}
-input.mzv-lb-toggle:checked~.mzv-lb-overlay{opacity:1;pointer-events:auto}
-input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transform:scale(1)}
-.mzv-lb-full{max-width:95vw;max-height:90vh;object-fit:contain;transform:scale(.96);transition:transform .2s ease-out}
+.mzv-lb-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.92);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none}
+input.mzv-lb-toggle:checked~.mzv-lb-overlay{opacity:1;pointer-events:auto;transition:opacity .2s ease-out}
+input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transform:scale(1);transition:transform .2s ease-out}
+.mzv-lb-full{max-width:95vw;max-height:90vh;object-fit:contain;transform:scale(.96)}
 .mzv-lb-close{position:absolute;top:12px;right:12px;width:32px;height:32px;background:url("{$close_svg}") center/contain no-repeat;filter:drop-shadow(0 1px 3px rgba(0,0,0,.7));cursor:pointer;z-index:1}
 .mzv-lb-close:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:2px}
 .mzv-lb-backdrop{position:absolute;inset:0;cursor:default}
 .mzv-lb-caption{margin-top:8px;padding:4px 14px;background:rgba(0,0,0,.6);color:#fff;font-size:.85rem;line-height:1.4;border-radius:999px;max-width:90vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mzv-lb-wrap:focus-visible{outline:2px solid #0073aa;outline-offset:2px;border-radius:2px}
-@media(prefers-reduced-motion:reduce){.mzv-lb-overlay,.mzv-lb-hover{transition:none}.mzv-lb-full{transition:none;transform:scale(1)}}
+.mzv-lb-trigger:focus-visible{outline:2px solid #0073aa;outline-offset:2px;border-radius:2px}
+@media(prefers-reduced-motion:reduce){.mzv-lb-overlay,input.mzv-lb-toggle:checked~.mzv-lb-overlay,.mzv-lb-hover{transition:none}.mzv-lb-full,input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transition:none;transform:scale(1)}}
 @media print{.mzv-lb-overlay,.mzv-lb-hover,.mzv-lb-mobile-hint,.mzv-lb-toggle{display:none!important}}
 CSS;
 }
@@ -113,6 +113,12 @@ function mzv_lb_wrap_images( $content ) {
 	$to_process = array();
 
 	foreach ( $images as $img ) {
+		// Skip images with empty or placeholder src.
+		$src = $img->getAttribute( 'src' );
+		if ( empty( $src ) || strpos( $src, 'data:' ) === 0 ) {
+			continue;
+		}
+
 		// Skip images with no-lightbox class.
 		$classes = $img->getAttribute( 'class' );
 		if ( strpos( $classes, 'no-lightbox' ) !== false ) {
@@ -155,7 +161,6 @@ function mzv_lb_wrap_images( $content ) {
 		$full_src = mzv_lb_get_full_size_url( $img );
 
 		// Build the wrapper markup.
-		$fragment = $doc->createDocumentFragment();
 		$html     = mzv_lb_build_markup( $id, $img, $full_src, $alt, $doc );
 
 		$img->parentNode->replaceChild( $html, $img );
@@ -190,7 +195,8 @@ function mzv_lb_build_markup( $id, $img, $full_src, $alt, $doc ) {
 	$label = $doc->createElement( 'label' );
 	$label->setAttribute( 'for', $id );
 	$label->setAttribute( 'class', 'mzv-lb-trigger' );
-	$label->setAttribute( 'aria-label', esc_attr__( 'Open image in lightbox', 'mzv-lightbox' ) );
+	$label->setAttribute( 'aria-label', __( 'Open image in lightbox', 'mzv-lightbox' ) );
+	$label->setAttribute( 'tabindex', '0' );
 
 	// Clone the original image into the label.
 	$img_clone = $img->cloneNode( true );
@@ -218,13 +224,13 @@ function mzv_lb_build_markup( $id, $img, $full_src, $alt, $doc ) {
 	$backdrop = $doc->createElement( 'label' );
 	$backdrop->setAttribute( 'for', $id );
 	$backdrop->setAttribute( 'class', 'mzv-lb-backdrop' );
-	$backdrop->setAttribute( 'aria-label', esc_attr__( 'Close image', 'mzv-lightbox' ) );
+	$backdrop->setAttribute( 'aria-label', __( 'Close image', 'mzv-lightbox' ) );
 	$overlay->appendChild( $backdrop );
 
 	// Full-size image.
 	$full_img = $doc->createElement( 'img' );
-	$full_img->setAttribute( 'src', esc_url( $full_src ) );
-	$full_img->setAttribute( 'alt', esc_attr( $alt ) );
+	$full_img->setAttribute( 'src', $full_src );
+	$full_img->setAttribute( 'alt', $alt );
 	$full_img->setAttribute( 'class', 'mzv-lb-full' );
 	$full_img->setAttribute( 'loading', 'lazy' );
 	$full_img->setAttribute( 'decoding', 'async' );
@@ -234,7 +240,8 @@ function mzv_lb_build_markup( $id, $img, $full_src, $alt, $doc ) {
 	$close = $doc->createElement( 'label' );
 	$close->setAttribute( 'for', $id );
 	$close->setAttribute( 'class', 'mzv-lb-close' );
-	$close->setAttribute( 'aria-label', esc_attr__( 'Close image', 'mzv-lightbox' ) );
+	$close->setAttribute( 'aria-label', __( 'Close image', 'mzv-lightbox' ) );
+	$close->setAttribute( 'tabindex', '0' );
 	$overlay->appendChild( $close );
 
 	// Caption.

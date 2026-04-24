@@ -223,7 +223,8 @@ class MZV_LB_Admin {
 
 	public function field_wprm_jump(): void {
 		$opts = MZV_LB_Settings::get_options();
-		echo '<div class="mzv-lb-enhanced-only">';
+		// Note: no mzv-lb-enhanced-only wrapper — Jump to Recipe is a plain
+		// anchor link and works in both CSS-Only and Enhanced modes.
 		printf(
 			'<label><input type="checkbox" name="mzv_lightbox_options[wprm_jump_enabled]" value="1" %s> %s</label>',
 			checked( $opts['wprm_jump_enabled'], true, false ),
@@ -234,8 +235,7 @@ class MZV_LB_Admin {
 			echo '<p class="description">' . esc_html__( 'WPRM not detected.', 'mzv-lightbox' ) . '</p>';
 		}
 
-		echo '<p class="description">' . esc_html__( 'Available in Enhanced mode.', 'mzv-lightbox' ) . '</p>';
-		echo '</div>';
+		echo '<p class="description">' . esc_html__( 'Works in both CSS-Only and Enhanced modes — it\'s a plain anchor link.', 'mzv-lightbox' ) . '</p>';
 	}
 
 	// ── WPRM Conflict Notice ─────────────────────────────────────────────

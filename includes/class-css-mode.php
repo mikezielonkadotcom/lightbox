@@ -40,6 +40,9 @@ input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transform:scale(1);tran
 .mzv-lb-backdrop{position:absolute;inset:0;cursor:default}
 .mzv-lb-caption{margin-top:8px;padding:4px 14px;background:rgba(0,0,0,.6);color:#fff;font-size:.85rem;line-height:1.4;border-radius:999px;max-width:90vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mzv-lb-trigger:focus-visible{outline:2px solid #0073aa;outline-offset:2px;border-radius:2px}
+@media(hover:none){.mzv-lb-wrap{outline:2px solid #0073aa;outline-offset:2px;border-radius:2px}}
+.mzv-lb-jump-link{display:inline-block;margin-top:8px;padding:4px 14px;background:rgba(255,255,255,.15);color:#fff;font-size:.8rem;text-decoration:none;border-radius:999px}
+.mzv-lb-jump-link:hover{background:rgba(255,255,255,.25);color:#fff}
 @media(prefers-reduced-motion:reduce){.mzv-lb-overlay,input.mzv-lb-toggle:checked~.mzv-lb-overlay,.mzv-lb-hover{transition:none}.mzv-lb-full,input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transition:none;transform:scale(1)}}
 @media print{.mzv-lb-overlay,.mzv-lb-hover,.mzv-lb-mobile-hint,.mzv-lb-toggle{display:none!important}}
 CSS;
@@ -48,14 +51,16 @@ CSS;
 	/**
 	 * Build CSS-Only mode DOM for a single image.
 	 *
-	 * @param string      $id       Unique lightbox ID (e.g. mzv-lb-1).
-	 * @param DOMElement  $img      The original <img> element.
-	 * @param string      $full_src Full-size image URL.
-	 * @param string      $alt      Alt text.
-	 * @param DOMDocument $doc      The document.
+	 * @param string      $id        Unique lightbox ID (e.g. mzv-lb-1).
+	 * @param DOMElement  $img       The original <img> element.
+	 * @param string      $full_src  Full-size image URL.
+	 * @param string      $alt       Alt text.
+	 * @param DOMDocument $doc       The document.
+	 * @param bool        $has_jump  Whether to render a "Jump to Recipe" link.
+	 * @param string      $jump_href Anchor href for the jump link.
 	 * @return DOMElement The wrapper fragment.
 	 */
-	public static function build_markup( string $id, DOMElement $img, string $full_src, string $alt, DOMDocument $doc ): DOMElement {
+	public static function build_markup( string $id, DOMElement $img, string $full_src, string $alt, DOMDocument $doc, bool $has_jump = false, string $jump_href = '#wprm-recipe-container-0' ): DOMElement {
 		// Container span.
 		$wrap = $doc->createElement( 'span' );
 		$wrap->setAttribute( 'class', 'mzv-lb-wrap' );
@@ -125,6 +130,17 @@ CSS;
 			$caption->setAttribute( 'class', 'mzv-lb-caption' );
 			$caption->textContent = $alt;
 			$overlay->appendChild( $caption );
+		}
+
+		// Jump to Recipe link — plain anchor so it works without JS.
+		// Clicking it navigates to the recipe anchor; the user can then
+		// dismiss the overlay via the close button.
+		if ( $has_jump ) {
+			$jump = $doc->createElement( 'a' );
+			$jump->setAttribute( 'href', $jump_href );
+			$jump->setAttribute( 'class', 'mzv-lb-jump-link' );
+			$jump->textContent = __( 'Jump to Recipe ↓', 'mzv-lightbox' );
+			$overlay->appendChild( $jump );
 		}
 
 		$wrap->appendChild( $input );

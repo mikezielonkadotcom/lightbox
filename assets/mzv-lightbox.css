@@ -57,6 +57,17 @@
 
 @media (hover: none) {
 	.mzv-lb-hover { display: none; }
+
+	/* Apply the tap-to-zoom indicator outline consistently to every
+	   lightbox-enabled image on touch devices, regardless of focus
+	   history.  Without this, only the last-focused wrap shows the
+	   blue ring (via :focus-visible), leaving other images with no
+	   visible affordance. */
+	.mzv-lb-wrap {
+		outline: 2px solid #0073aa;
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
 }
 
 /* Focus ring on trigger */
@@ -227,6 +238,13 @@
 	font-size: .8rem;
 	border-radius: 999px;
 	white-space: nowrap;
+}
+
+/* Ensure caption and counter don’t overlap when both are visible.
+   The counter sits 12px above the viewport bottom (position:absolute);
+   pad the content area so the caption never slides under it. */
+.mzv-lb-content {
+	padding-bottom: 44px; /* counter height ~26px + 12px bottom offset + 6px gap */
 }
 
 .mzv-lb-counter.is-hidden {

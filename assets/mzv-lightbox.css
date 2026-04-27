@@ -57,6 +57,11 @@
 
 @media (hover: none) {
 	.mzv-lb-hover { display: none; }
+	.mzv-lb-wrap {
+		outline: 2px solid rgba(0, 115, 170, .55);
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
 }
 
 /* Focus ring on trigger */
@@ -216,11 +221,8 @@
 
 /* Counter */
 .mzv-lb-counter {
-	position: absolute;
-	bottom: 12px;
-	left: 50%;
-	transform: translateX(-50%);
-	z-index: 2;
+	display: inline-block;
+	margin-top: 8px;
 	padding: 4px 12px;
 	background: rgba(0,0,0,.5);
 	color: #fff;

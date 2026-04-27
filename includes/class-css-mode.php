@@ -30,7 +30,7 @@ html:has(input.mzv-lb-toggle:checked){overflow:hidden}
 .mzv-lb-wrap:hover .mzv-lb-hover{opacity:1}
 .mzv-lb-mobile-hint{position:absolute;bottom:8px;right:8px;width:22px;height:22px;background:url("{$magnifier_svg}") center/contain no-repeat;opacity:.6;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));pointer-events:none}
 @media(hover:hover){.mzv-lb-mobile-hint{display:none}}
-@media(hover:none){.mzv-lb-hover{display:none}}
+@media(hover:none){.mzv-lb-hover{display:none}.mzv-lb-wrap{outline:2px solid rgba(0,115,170,.55);outline-offset:2px;border-radius:2px}}
 .mzv-lb-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.92);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none}
 input.mzv-lb-toggle:checked~.mzv-lb-overlay{opacity:1;pointer-events:auto;transition:opacity .2s ease-out}
 input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transform:scale(1);transition:transform .2s ease-out}
@@ -39,6 +39,7 @@ input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transform:scale(1);tran
 .mzv-lb-close:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:2px}
 .mzv-lb-backdrop{position:absolute;inset:0;cursor:default}
 .mzv-lb-caption{margin-top:8px;padding:4px 14px;background:rgba(0,0,0,.6);color:#fff;font-size:.85rem;line-height:1.4;border-radius:999px;max-width:90vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mzv-lb-jump-link{display:inline-block;margin-top:8px;padding:4px 14px;background:rgba(255,255,255,.15);color:#fff;font-size:.8rem;text-decoration:none;border-radius:999px;cursor:pointer;transition:background .15s}.mzv-lb-jump-link:hover{background:rgba(255,255,255,.25);color:#fff}
 .mzv-lb-trigger:focus-visible{outline:2px solid #0073aa;outline-offset:2px;border-radius:2px}
 @media(prefers-reduced-motion:reduce){.mzv-lb-overlay,input.mzv-lb-toggle:checked~.mzv-lb-overlay,.mzv-lb-hover{transition:none}.mzv-lb-full,input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transition:none;transform:scale(1)}}
 @media print{.mzv-lb-overlay,.mzv-lb-hover,.mzv-lb-mobile-hint,.mzv-lb-toggle{display:none!important}}
@@ -51,11 +52,12 @@ CSS;
 	 * @param string      $id       Unique lightbox ID (e.g. mzv-lb-1).
 	 * @param DOMElement  $img      The original <img> element.
 	 * @param string      $full_src Full-size image URL.
-	 * @param string      $alt      Alt text.
-	 * @param DOMDocument $doc      The document.
+	 * @param string      $alt              Alt text.
+	 * @param DOMDocument $doc              The document.
+	 * @param string      $recipe_anchor_id Optional recipe anchor ID for Jump to Recipe links.
 	 * @return DOMElement The wrapper fragment.
 	 */
-	public static function build_markup( string $id, DOMElement $img, string $full_src, string $alt, DOMDocument $doc ): DOMElement {
+	public static function build_markup( string $id, DOMElement $img, string $full_src, string $alt, DOMDocument $doc, string $recipe_anchor_id = '' ): DOMElement {
 		// Container span.
 		$wrap = $doc->createElement( 'span' );
 		$wrap->setAttribute( 'class', 'mzv-lb-wrap' );
@@ -125,6 +127,16 @@ CSS;
 			$caption->setAttribute( 'class', 'mzv-lb-caption' );
 			$caption->textContent = $alt;
 			$overlay->appendChild( $caption );
+		}
+
+		// Jump to Recipe. CSS-only mode cannot run the enhanced scroll/close handler,
+		// so this is rendered as a plain anchor to the recipe container.
+		if ( '' !== $recipe_anchor_id ) {
+			$jump = $doc->createElement( 'a' );
+			$jump->setAttribute( 'class', 'mzv-lb-jump-link' );
+			$jump->setAttribute( 'href', '#' . $recipe_anchor_id );
+			$jump->textContent = __( 'Jump to Recipe ↓', 'mzv-lightbox' );
+			$overlay->appendChild( $jump );
 		}
 
 		$wrap->appendChild( $input );

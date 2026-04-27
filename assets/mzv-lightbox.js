@@ -108,17 +108,17 @@
 		modalJump.textContent = i18n.jumpToRecipe || 'Jump to Recipe ↓';
 		content.appendChild(modalJump);
 
+		modalCounter = document.createElement('span');
+		modalCounter.className = 'mzv-lb-counter is-hidden';
+		modalCounter.setAttribute('aria-live', 'polite');
+		content.appendChild(modalCounter);
+
 		modal.appendChild(content);
 
 		modalClose = document.createElement('button');
 		modalClose.className = 'mzv-lb-close';
 		modalClose.setAttribute('aria-label', i18n.close || 'Close image');
 		modal.appendChild(modalClose);
-
-		modalCounter = document.createElement('span');
-		modalCounter.className = 'mzv-lb-counter is-hidden';
-		modalCounter.setAttribute('aria-live', 'polite');
-		modal.appendChild(modalCounter);
 
 		document.body.appendChild(modal);
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * MZV Lightbox Content Filter — DOM parsing + image wrapping for both modes.
+ * This Little Lightbox of Mine Content Filter — DOM parsing + image wrapping for both modes.
  *
  * @package MZV_Lightbox
  */
@@ -42,23 +42,23 @@ class MZV_LB_Content {
 
 		if ( 'css' === $opts['lightbox_mode'] ) {
 			// CSS-Only mode: inline styles, zero JS.
-			wp_register_style( 'mzv-lightbox-base', false );
-			wp_enqueue_style( 'mzv-lightbox-base' );
-			wp_add_inline_style( 'mzv-lightbox-base', MZV_LB_CSS_Mode::get_inline_css() );
+			wp_register_style( 'little-lightbox-base', false );
+			wp_enqueue_style( 'little-lightbox-base' );
+			wp_add_inline_style( 'little-lightbox-base', MZV_LB_CSS_Mode::get_inline_css() );
 			return;
 		}
 
 		// Enhanced mode: linked CSS + JS.
 		wp_enqueue_style(
-			'mzv-lightbox',
-			MZV_LB_URL . 'assets/mzv-lightbox.css',
+			'little-lightbox',
+			MZV_LB_URL . 'assets/little-lightbox.css',
 			[],
 			MZV_LB_VERSION
 		);
 
 		wp_enqueue_script(
-			'mzv-lightbox',
-			MZV_LB_URL . 'assets/mzv-lightbox.js',
+			'little-lightbox',
+			MZV_LB_URL . 'assets/little-lightbox.js',
 			[],
 			MZV_LB_VERSION,
 			true
@@ -72,16 +72,16 @@ class MZV_LB_Content {
 			'wprmJumpEnabled'    => (bool) $opts['wprm_jump_enabled'],
 			'recipeCardSelector' => '.wprm-recipe-container',
 			'i18n'               => [
-				'close'        => __( 'Close image', 'mzv-lightbox' ),
-				'prev'         => __( 'Previous image', 'mzv-lightbox' ),
-				'next'         => __( 'Next image', 'mzv-lightbox' ),
-				'counter'      => /* translators: %1$d current image, %2$d total */ __( '%1$d of %2$d', 'mzv-lightbox' ),
-				'jumpToRecipe' => __( 'Jump to Recipe ↓', 'mzv-lightbox' ),
-				'openImage'    => __( 'Open image in lightbox', 'mzv-lightbox' ),
+				'close'        => __( 'Close image', 'little-lightbox' ),
+				'prev'         => __( 'Previous image', 'little-lightbox' ),
+				'next'         => __( 'Next image', 'little-lightbox' ),
+				'counter'      => /* translators: %1$d current image, %2$d total */ __( '%1$d of %2$d', 'little-lightbox' ),
+				'jumpToRecipe' => __( 'Jump to Recipe ↓', 'little-lightbox' ),
+				'openImage'    => __( 'Open image in lightbox', 'little-lightbox' ),
 			],
 		];
 
-		wp_localize_script( 'mzv-lightbox', 'mzvLbConfig', $config );
+		wp_localize_script( 'little-lightbox', 'mzvLbConfig', $config );
 	}
 
 	/**
@@ -181,7 +181,7 @@ class MZV_LB_Content {
 		$wrap->setAttribute( 'data-mzv-lb-group', $group );
 		$wrap->setAttribute( 'role', 'button' );
 		$wrap->setAttribute( 'tabindex', '0' );
-		$wrap->setAttribute( 'aria-label', __( 'Open image in lightbox', 'mzv-lightbox' ) );
+		$wrap->setAttribute( 'aria-label', __( 'Open image in lightbox', 'little-lightbox' ) );
 
 		// Caption.
 		$caption = $this->get_caption_value( $img, $opts );

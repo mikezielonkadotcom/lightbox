@@ -1,11 +1,11 @@
-# MZV Lightbox
+# This Little Lightbox of Mine
 
-Pure-CSS, zero-JS lightbox for WordPress. Fast, lightweight, no render-blocking.
+Lightweight image lightbox for WordPress with CSS-Only and Enhanced modes. Fast, accessible, and built for food blogs.
 
 ## Features
 
-- **Zero JavaScript** — uses the CSS checkbox hack for lightbox toggle
-- **< 2KB gzipped CSS** — inlined via `wp_add_inline_style`, no extra HTTP requests
+- **CSS-Only mode** — uses the CSS checkbox hack for lightbox toggle
+- **Enhanced mode** — adds gallery browsing, captions, swipe, keyboard navigation, and animations
 - **Auto-wraps images** in `the_content` with smart exclusions
 - **Skips**: WPRM recipe card images, images with class `no-lightbox`, images already wrapped in links
 - **Full-size images** lazy-loaded only when lightbox opens
@@ -18,7 +18,7 @@ Pure-CSS, zero-JS lightbox for WordPress. Fast, lightweight, no render-blocking.
 ## Installation
 
 1. Download the [latest release](https://github.com/mikezielonkadotcom/lightbox/releases)
-2. Upload to `/wp-content/plugins/mzv-lightbox/`
+2. Upload to `/wp-content/plugins/little-lightbox/`
 3. Activate in WordPress admin
 4. Done — no configuration needed
 

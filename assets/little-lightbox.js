@@ -1,5 +1,5 @@
 /**
- * MZV Lightbox v2.0.0 — Enhanced Mode JS
+ * This Little Lightbox of Mine v2.1.0 — Enhanced Mode JS
  *
  * Vanilla JS: modal, gallery, swipe, keyboard, animation, focus trap.
  * No dependencies. ES2017+.
@@ -32,6 +32,24 @@
 
 	function getDuration() {
 		return shouldAnimate() ? (config.animationDurationMs || 200) : 0;
+	}
+
+	function trackLightboxOpen(wrapEl) {
+		var imageSrc = wrapEl.getAttribute('data-mzv-lb-src') || '';
+		var imageAlt = wrapEl.getAttribute('data-mzv-lb-caption') || '';
+		var img = wrapEl.querySelector('img');
+
+		if (!imageAlt && img) {
+			imageAlt = img.getAttribute('alt') || '';
+		}
+
+		if (typeof gtag === 'function') {
+			gtag('event', 'lightbox_open', {
+				'event_category': 'engagement',
+				'event_label': imageSrc || imageAlt || 'unknown',
+				'image_url': imageSrc
+			});
+		}
 	}
 
 	// ── Init ─────────────────────────────────────────────────────────────
@@ -149,6 +167,7 @@
 		if (activeIndex < 0) activeIndex = 0;
 
 		updateModalContent();
+		trackLightboxOpen(wrapEl);
 
 		// Show modal.
 		modal.style.display = 'flex';

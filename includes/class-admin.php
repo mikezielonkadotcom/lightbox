@@ -1,6 +1,6 @@
 <?php
 /**
- * MZV Lightbox Admin — settings page + WPRM conflict notices.
+ * This Little Lightbox of Mine Admin — settings page + WPRM conflict notices.
  *
  * @package MZV_Lightbox
  */
@@ -31,10 +31,10 @@ class MZV_LB_Admin {
 	 */
 	public function add_settings_page(): void {
 		add_options_page(
-			__( 'MZV Lightbox Settings', 'mzv-lightbox' ),
-			__( 'MZV Lightbox', 'mzv-lightbox' ),
+			__( 'This Little Lightbox of Mine Settings', 'little-lightbox' ),
+			__( 'This Little Lightbox of Mine', 'little-lightbox' ),
 			'manage_options',
-			'mzv-lightbox',
+			'little-lightbox',
 			[ $this, 'render_settings_page' ]
 		);
 	}
@@ -43,35 +43,35 @@ class MZV_LB_Admin {
 	 * Register settings sections and fields.
 	 */
 	public function register_sections_and_fields(): void {
-		$page   = 'mzv-lightbox';
+		$page   = 'little-lightbox';
 		$option = MZV_LB_Settings::OPTION_KEY;
 
 		// Section: Mode.
-		add_settings_section( 'mzv_lb_mode', __( 'Lightbox Mode', 'mzv-lightbox' ), '__return_false', $page );
-		add_settings_field( 'lightbox_mode', __( 'Mode', 'mzv-lightbox' ), [ $this, 'field_lightbox_mode' ], $page, 'mzv_lb_mode' );
+		add_settings_section( 'mzv_lb_mode', __( 'Lightbox Mode', 'little-lightbox' ), '__return_false', $page );
+		add_settings_field( 'lightbox_mode', __( 'Mode', 'little-lightbox' ), [ $this, 'field_lightbox_mode' ], $page, 'mzv_lb_mode' );
 
 		// Section: Caption.
-		add_settings_section( 'mzv_lb_caption', __( 'Caption', 'mzv-lightbox' ), '__return_false', $page );
-		add_settings_field( 'caption_source', __( 'Caption Source', 'mzv-lightbox' ), [ $this, 'field_caption_source' ], $page, 'mzv_lb_caption' );
+		add_settings_section( 'mzv_lb_caption', __( 'Caption', 'little-lightbox' ), '__return_false', $page );
+		add_settings_field( 'caption_source', __( 'Caption Source', 'little-lightbox' ), [ $this, 'field_caption_source' ], $page, 'mzv_lb_caption' );
 
 		// Section: Visibility.
-		add_settings_section( 'mzv_lb_visibility', __( 'Visibility', 'mzv-lightbox' ), '__return_false', $page );
-		add_settings_field( 'min_image_width', __( 'Min Image Width', 'mzv-lightbox' ), [ $this, 'field_min_image_width' ], $page, 'mzv_lb_visibility' );
-		add_settings_field( 'excluded_classes', __( 'Excluded Classes', 'mzv-lightbox' ), [ $this, 'field_excluded_classes' ], $page, 'mzv_lb_visibility' );
-		add_settings_field( 'recipe_card_lightbox', __( 'Recipe Card Images', 'mzv-lightbox' ), [ $this, 'field_recipe_card_lightbox' ], $page, 'mzv_lb_visibility' );
+		add_settings_section( 'mzv_lb_visibility', __( 'Visibility', 'little-lightbox' ), '__return_false', $page );
+		add_settings_field( 'min_image_width', __( 'Min Image Width', 'little-lightbox' ), [ $this, 'field_min_image_width' ], $page, 'mzv_lb_visibility' );
+		add_settings_field( 'excluded_classes', __( 'Excluded Classes', 'little-lightbox' ), [ $this, 'field_excluded_classes' ], $page, 'mzv_lb_visibility' );
+		add_settings_field( 'recipe_card_lightbox', __( 'Recipe Card Images', 'little-lightbox' ), [ $this, 'field_recipe_card_lightbox' ], $page, 'mzv_lb_visibility' );
 
 		// Section: Gallery.
-		add_settings_section( 'mzv_lb_gallery', __( 'Gallery', 'mzv-lightbox' ), '__return_false', $page );
-		add_settings_field( 'gallery_enabled', __( 'Gallery Browsing', 'mzv-lightbox' ), [ $this, 'field_gallery_enabled' ], $page, 'mzv_lb_gallery' );
+		add_settings_section( 'mzv_lb_gallery', __( 'Gallery', 'little-lightbox' ), '__return_false', $page );
+		add_settings_field( 'gallery_enabled', __( 'Gallery Browsing', 'little-lightbox' ), [ $this, 'field_gallery_enabled' ], $page, 'mzv_lb_gallery' );
 
 		// Section: Animations.
-		add_settings_section( 'mzv_lb_animations', __( 'Animations', 'mzv-lightbox' ), '__return_false', $page );
-		add_settings_field( 'animations_enabled', __( 'Animations', 'mzv-lightbox' ), [ $this, 'field_animations_enabled' ], $page, 'mzv_lb_animations' );
-		add_settings_field( 'animation_duration_ms', __( 'Duration', 'mzv-lightbox' ), [ $this, 'field_animation_duration' ], $page, 'mzv_lb_animations' );
+		add_settings_section( 'mzv_lb_animations', __( 'Animations', 'little-lightbox' ), '__return_false', $page );
+		add_settings_field( 'animations_enabled', __( 'Animations', 'little-lightbox' ), [ $this, 'field_animations_enabled' ], $page, 'mzv_lb_animations' );
+		add_settings_field( 'animation_duration_ms', __( 'Duration', 'little-lightbox' ), [ $this, 'field_animation_duration' ], $page, 'mzv_lb_animations' );
 
 		// Section: WPRM.
-		add_settings_section( 'mzv_lb_wprm', __( 'WPRM Integration', 'mzv-lightbox' ), '__return_false', $page );
-		add_settings_field( 'wprm_jump_enabled', __( 'Jump to Recipe', 'mzv-lightbox' ), [ $this, 'field_wprm_jump' ], $page, 'mzv_lb_wprm' );
+		add_settings_section( 'mzv_lb_wprm', __( 'WPRM Integration', 'little-lightbox' ), '__return_false', $page );
+		add_settings_field( 'wprm_jump_enabled', __( 'Jump to Recipe', 'little-lightbox' ), [ $this, 'field_wprm_jump' ], $page, 'mzv_lb_wprm' );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class MZV_LB_Admin {
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( MZV_LB_Settings::OPTION_KEY );
-				do_settings_sections( 'mzv-lightbox' );
+				do_settings_sections( 'little-lightbox' );
 				submit_button();
 				?>
 			</form>
@@ -125,13 +125,13 @@ class MZV_LB_Admin {
 		<fieldset>
 			<label>
 				<input type="radio" name="mzv_lightbox_options[lightbox_mode]" value="enhanced" <?php checked( $val, 'enhanced' ); ?>>
-				<?php esc_html_e( 'Enhanced', 'mzv-lightbox' ); ?>
-				<span class="description"><?php esc_html_e( '— Full JS lightbox with gallery, captions, animations & keyboard nav.', 'mzv-lightbox' ); ?></span>
+				<?php esc_html_e( 'Enhanced', 'little-lightbox' ); ?>
+				<span class="description"><?php esc_html_e( '— Full JS lightbox with gallery, captions, animations & keyboard nav.', 'little-lightbox' ); ?></span>
 			</label><br>
 			<label>
 				<input type="radio" name="mzv_lightbox_options[lightbox_mode]" value="css" <?php checked( $val, 'css' ); ?>>
-				<?php esc_html_e( 'CSS-Only', 'mzv-lightbox' ); ?>
-				<span class="description"><?php esc_html_e( '— Zero JavaScript. Pure CSS lightbox with open/close only.', 'mzv-lightbox' ); ?></span>
+				<?php esc_html_e( 'CSS-Only', 'little-lightbox' ); ?>
+				<span class="description"><?php esc_html_e( '— Zero JavaScript. Pure CSS lightbox with open/close only.', 'little-lightbox' ); ?></span>
 			</label>
 		</fieldset>
 		<?php
@@ -141,10 +141,10 @@ class MZV_LB_Admin {
 		$opts = MZV_LB_Settings::get_options();
 		$val  = $opts['caption_source'];
 		$options = [
-			'alt'         => __( 'Alt text', 'mzv-lightbox' ),
-			'title'       => __( 'Title attribute', 'mzv-lightbox' ),
-			'description' => __( 'Description (attachment)', 'mzv-lightbox' ),
-			'none'        => __( 'None (no caption)', 'mzv-lightbox' ),
+			'alt'         => __( 'Alt text', 'little-lightbox' ),
+			'title'       => __( 'Title attribute', 'little-lightbox' ),
+			'description' => __( 'Description (attachment)', 'little-lightbox' ),
+			'none'        => __( 'None (no caption)', 'little-lightbox' ),
 		];
 		echo '<fieldset class="mzv-lb-enhanced-only">';
 		foreach ( $options as $key => $label ) {
@@ -155,7 +155,7 @@ class MZV_LB_Admin {
 				esc_html( $label )
 			);
 		}
-		echo '<p class="description">' . esc_html__( 'Available in Enhanced mode.', 'mzv-lightbox' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Available in Enhanced mode.', 'little-lightbox' ) . '</p>';
 		echo '</fieldset>';
 	}
 
@@ -165,7 +165,7 @@ class MZV_LB_Admin {
 			'<input type="number" name="mzv_lightbox_options[min_image_width]" value="%d" min="0" step="1" class="small-text"> px',
 			(int) $opts['min_image_width']
 		);
-		echo '<p class="description">' . esc_html__( '0 = all images eligible.', 'mzv-lightbox' ) . '</p>';
+		echo '<p class="description">' . esc_html__( '0 = all images eligible.', 'little-lightbox' ) . '</p>';
 	}
 
 	public function field_excluded_classes(): void {
@@ -174,7 +174,7 @@ class MZV_LB_Admin {
 			'<input type="text" name="mzv_lightbox_options[excluded_classes]" value="%s" class="regular-text" placeholder="alignright, sponsor-logo">',
 			esc_attr( $opts['excluded_classes'] )
 		);
-		echo '<p class="description">' . esc_html__( 'Comma-separated CSS class names. .no-lightbox is always excluded.', 'mzv-lightbox' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Comma-separated CSS class names. .no-lightbox is always excluded.', 'little-lightbox' ) . '</p>';
 	}
 
 	public function field_recipe_card_lightbox(): void {
@@ -182,7 +182,7 @@ class MZV_LB_Admin {
 		printf(
 			'<label><input type="checkbox" name="mzv_lightbox_options[recipe_card_lightbox]" value="1" %s> %s</label>',
 			checked( $opts['recipe_card_lightbox'], true, false ),
-			esc_html__( 'Enable lightbox on WPRM recipe card images', 'mzv-lightbox' )
+			esc_html__( 'Enable lightbox on WPRM recipe card images', 'little-lightbox' )
 		);
 	}
 
@@ -192,9 +192,9 @@ class MZV_LB_Admin {
 		printf(
 			'<label><input type="checkbox" name="mzv_lightbox_options[gallery_enabled]" value="1" %s> %s</label>',
 			checked( $opts['gallery_enabled'], true, false ),
-			esc_html__( 'Enable prev/next gallery navigation', 'mzv-lightbox' )
+			esc_html__( 'Enable prev/next gallery navigation', 'little-lightbox' )
 		);
-		echo '<p class="description">' . esc_html__( 'Available in Enhanced mode.', 'mzv-lightbox' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Available in Enhanced mode.', 'little-lightbox' ) . '</p>';
 		echo '</div>';
 	}
 
@@ -204,9 +204,9 @@ class MZV_LB_Admin {
 		printf(
 			'<label><input type="checkbox" name="mzv_lightbox_options[animations_enabled]" value="1" %s> %s</label>',
 			checked( $opts['animations_enabled'], true, false ),
-			esc_html__( 'Enable open/close animations', 'mzv-lightbox' )
+			esc_html__( 'Enable open/close animations', 'little-lightbox' )
 		);
-		echo '<p class="description">' . esc_html__( 'Available in Enhanced mode.', 'mzv-lightbox' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Available in Enhanced mode.', 'little-lightbox' ) . '</p>';
 		echo '</div>';
 	}
 
@@ -217,7 +217,7 @@ class MZV_LB_Admin {
 			'<input type="number" name="mzv_lightbox_options[animation_duration_ms]" value="%d" min="50" max="1000" step="10" class="small-text"> ms',
 			(int) $opts['animation_duration_ms']
 		);
-		echo '<p class="description">' . esc_html__( '50–1000 ms. Shown only when animations are enabled.', 'mzv-lightbox' ) . '</p>';
+		echo '<p class="description">' . esc_html__( '50–1000 ms. Shown only when animations are enabled.', 'little-lightbox' ) . '</p>';
 		echo '</div>';
 	}
 
@@ -226,14 +226,14 @@ class MZV_LB_Admin {
 		printf(
 			'<label><input type="checkbox" name="mzv_lightbox_options[wprm_jump_enabled]" value="1" %s> %s</label>',
 			checked( $opts['wprm_jump_enabled'], true, false ),
-			esc_html__( 'Show "Jump to Recipe" link in lightbox (requires WPRM)', 'mzv-lightbox' )
+			esc_html__( 'Show "Jump to Recipe" link in lightbox (requires WPRM)', 'little-lightbox' )
 		);
 
 		if ( ! ( function_exists( 'WPRM' ) || class_exists( 'WP_Recipe_Maker' ) ) ) {
-			echo '<p class="description">' . esc_html__( 'WPRM not detected.', 'mzv-lightbox' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'WPRM not detected.', 'little-lightbox' ) . '</p>';
 		}
 
-		echo '<p class="description">' . esc_html__( 'Available in Enhanced and CSS-Only modes.', 'mzv-lightbox' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Available in Enhanced and CSS-Only modes.', 'little-lightbox' ) . '</p>';
 	}
 
 	// ── WPRM Conflict Notice ─────────────────────────────────────────────
@@ -279,8 +279,8 @@ class MZV_LB_Admin {
 		?>
 		<div class="notice notice-warning is-dismissible" id="mzv-lb-conflict-notice">
 			<p>
-				<strong><?php esc_html_e( 'MZV Lightbox:', 'mzv-lightbox' ); ?></strong>
-				<?php esc_html_e( "WP Recipe Maker's clickable images feature is enabled. This wraps recipe images in links, which prevents MZV Lightbox from handling them. To let MZV Lightbox manage recipe images, disable clickable images in WPRM → Settings → Lightbox.", 'mzv-lightbox' ); ?>
+				<strong><?php esc_html_e( 'Lightbox:', 'little-lightbox' ); ?></strong>
+				<?php esc_html_e( "WP Recipe Maker's clickable images feature is enabled. This wraps recipe images in links, which prevents This Little Lightbox of Mine from handling them. To let This Little Lightbox of Mine manage recipe images, disable clickable images in WPRM → Settings → Lightbox.", 'little-lightbox' ); ?>
 			</p>
 		</div>
 		<script>

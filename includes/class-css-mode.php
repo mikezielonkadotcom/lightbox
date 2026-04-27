@@ -1,6 +1,6 @@
 <?php
 /**
- * MZV Lightbox CSS-Only Mode — inline styles + checkbox-hack DOM generation.
+ * This Little Lightbox of Mine CSS-Only Mode — inline styles + checkbox-hack DOM generation.
  *
  * @package MZV_Lightbox
  */
@@ -20,7 +20,7 @@ class MZV_LB_CSS_Mode {
 		$close_svg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3C/svg%3E";
 
 		return <<<CSS
-/* MZV Lightbox v2.0.0 — CSS-Only Mode */
+/* This Little Lightbox of Mine v2.1.0 — CSS-Only Mode */
 html:has(input.mzv-lb-toggle:checked){overflow:hidden}
 .mzv-lb-toggle{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
 .mzv-lb-wrap{position:relative;display:inline-block;cursor:zoom-in}
@@ -73,7 +73,7 @@ CSS;
 		$label = $doc->createElement( 'label' );
 		$label->setAttribute( 'for', $id );
 		$label->setAttribute( 'class', 'mzv-lb-trigger' );
-		$label->setAttribute( 'aria-label', __( 'Open image in lightbox', 'mzv-lightbox' ) );
+		$label->setAttribute( 'aria-label', __( 'Open image in lightbox', 'little-lightbox' ) );
 		$label->setAttribute( 'tabindex', '0' );
 
 		$img_clone = $img->cloneNode( true );
@@ -101,7 +101,7 @@ CSS;
 		$backdrop = $doc->createElement( 'label' );
 		$backdrop->setAttribute( 'for', $id );
 		$backdrop->setAttribute( 'class', 'mzv-lb-backdrop' );
-		$backdrop->setAttribute( 'aria-label', __( 'Close image', 'mzv-lightbox' ) );
+		$backdrop->setAttribute( 'aria-label', __( 'Close image', 'little-lightbox' ) );
 		$overlay->appendChild( $backdrop );
 
 		// Full-size image.
@@ -117,7 +117,7 @@ CSS;
 		$close = $doc->createElement( 'label' );
 		$close->setAttribute( 'for', $id );
 		$close->setAttribute( 'class', 'mzv-lb-close' );
-		$close->setAttribute( 'aria-label', __( 'Close image', 'mzv-lightbox' ) );
+		$close->setAttribute( 'aria-label', __( 'Close image', 'little-lightbox' ) );
 		$close->setAttribute( 'tabindex', '0' );
 		$overlay->appendChild( $close );
 
@@ -135,7 +135,7 @@ CSS;
 			$jump = $doc->createElement( 'a' );
 			$jump->setAttribute( 'class', 'mzv-lb-jump-link' );
 			$jump->setAttribute( 'href', '#' . $recipe_anchor_id );
-			$jump->textContent = __( 'Jump to Recipe ↓', 'mzv-lightbox' );
+			$jump->textContent = __( 'Jump to Recipe ↓', 'little-lightbox' );
 			$overlay->appendChild( $jump );
 		}
 

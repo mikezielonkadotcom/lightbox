@@ -1,6 +1,6 @@
 <?php
 /**
- * MZV Lightbox Settings — WP Settings API registration + defaults.
+ * This Little Lightbox of Mine Settings — WP Settings API registration + defaults.
  *
  * @package MZV_Lightbox
  */

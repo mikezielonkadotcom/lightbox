@@ -70,7 +70,7 @@ class MZV_LB_Content {
 			'animationsEnabled'  => (bool) $opts['animations_enabled'],
 			'animationDurationMs' => (int) $opts['animation_duration_ms'],
 			'wprmJumpEnabled'    => (bool) $opts['wprm_jump_enabled'],
-			'recipeCardSelector' => '.wprm-recipe-container',
+			'recipeCardSelector' => '[id^="wprm-recipe-container-"], .wprm-recipe-container',
 			'i18n'               => [
 				'close'        => __( 'Close image', 'little-lightbox' ),
 				'prev'         => __( 'Previous image', 'little-lightbox' ),
@@ -137,13 +137,8 @@ class MZV_LB_Content {
 			return $content;
 		}
 
-		$counter          = 0;
-		$mode             = $opts['lightbox_mode'];
-		$recipe_anchor_id = '';
-
-		if ( 'css' === $mode && ! empty( $opts['wprm_jump_enabled'] ) && $this->current_post_has_recipe() ) {
-			$recipe_anchor_id = $this->ensure_recipe_anchor_id( $xpath );
-		}
+		$counter = 0;
+		$mode    = $opts['lightbox_mode'];
 
 		foreach ( $to_process as $item ) {
 			$counter++;
@@ -154,7 +149,7 @@ class MZV_LB_Content {
 			$full_src = $this->get_full_size_url( $img );
 
 			if ( 'css' === $mode ) {
-				$markup = MZV_LB_CSS_Mode::build_markup( $id, $img, $full_src, $alt, $doc, $recipe_anchor_id );
+				$markup = MZV_LB_CSS_Mode::build_markup( $id, $img, $full_src, $alt, $doc );
 			} else {
 				$markup = $this->build_enhanced_markup( $img, $full_src, $group, $opts, $doc );
 			}
@@ -292,30 +287,6 @@ class MZV_LB_Content {
 			$parent = $parent->parentNode;
 		}
 		return false;
-	}
-
-	/**
-	 * Ensure the first WPRM recipe container has an anchor target for CSS-only jump links.
-	 */
-	private function ensure_recipe_anchor_id( DOMXPath $xpath ): string {
-		$recipes = $xpath->query( "//*[contains(concat(' ', normalize-space(@class), ' '), ' wprm-recipe-container ')]" );
-
-		if ( ! $recipes || 0 === $recipes->length ) {
-			return '';
-		}
-
-		$recipe = $recipes->item( 0 );
-		if ( ! $recipe instanceof DOMElement ) {
-			return '';
-		}
-
-		$id = $recipe->getAttribute( 'id' );
-		if ( '' === $id ) {
-			$id = 'mzv-lb-recipe';
-			$recipe->setAttribute( 'id', $id );
-		}
-
-		return $id;
 	}
 
 	/**

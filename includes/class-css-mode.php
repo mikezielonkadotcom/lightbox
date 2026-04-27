@@ -20,7 +20,7 @@ class MZV_LB_CSS_Mode {
 		$close_svg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3C/svg%3E";
 
 		return <<<CSS
-/* This Little Lightbox of Mine v2.1.0 — CSS-Only Mode */
+/* This Little Lightbox of Mine v2.2.0 — CSS-Only Mode */
 html:has(input.mzv-lb-toggle:checked){overflow:hidden}
 .mzv-lb-toggle{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
 .mzv-lb-wrap{position:relative;display:inline-block;cursor:zoom-in}
@@ -39,7 +39,6 @@ input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transform:scale(1);tran
 .mzv-lb-close:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:2px}
 .mzv-lb-backdrop{position:absolute;inset:0;cursor:default}
 .mzv-lb-caption{margin-top:8px;padding:4px 14px;background:rgba(0,0,0,.6);color:#fff;font-size:.85rem;line-height:1.4;border-radius:999px;max-width:90vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mzv-lb-jump-link{display:inline-block;margin-top:8px;padding:4px 14px;background:rgba(255,255,255,.15);color:#fff;font-size:.8rem;text-decoration:none;border-radius:999px;cursor:pointer;transition:background .15s}.mzv-lb-jump-link:hover{background:rgba(255,255,255,.25);color:#fff}
 .mzv-lb-trigger:focus-visible{outline:2px solid #0073aa;outline-offset:2px;border-radius:2px}
 @media(prefers-reduced-motion:reduce){.mzv-lb-overlay,input.mzv-lb-toggle:checked~.mzv-lb-overlay,.mzv-lb-hover{transition:none}.mzv-lb-full,input.mzv-lb-toggle:checked~.mzv-lb-overlay .mzv-lb-full{transition:none;transform:scale(1)}}
 @media print{.mzv-lb-overlay,.mzv-lb-hover,.mzv-lb-mobile-hint,.mzv-lb-toggle{display:none!important}}
@@ -54,10 +53,9 @@ CSS;
 	 * @param string      $full_src Full-size image URL.
 	 * @param string      $alt              Alt text.
 	 * @param DOMDocument $doc              The document.
-	 * @param string      $recipe_anchor_id Optional recipe anchor ID for Jump to Recipe links.
 	 * @return DOMElement The wrapper fragment.
 	 */
-	public static function build_markup( string $id, DOMElement $img, string $full_src, string $alt, DOMDocument $doc, string $recipe_anchor_id = '' ): DOMElement {
+	public static function build_markup( string $id, DOMElement $img, string $full_src, string $alt, DOMDocument $doc ): DOMElement {
 		// Container span.
 		$wrap = $doc->createElement( 'span' );
 		$wrap->setAttribute( 'class', 'mzv-lb-wrap' );
@@ -127,16 +125,6 @@ CSS;
 			$caption->setAttribute( 'class', 'mzv-lb-caption' );
 			$caption->textContent = $alt;
 			$overlay->appendChild( $caption );
-		}
-
-		// Jump to Recipe. CSS-only mode cannot run the enhanced scroll/close handler,
-		// so this is rendered as a plain anchor to the recipe container.
-		if ( '' !== $recipe_anchor_id ) {
-			$jump = $doc->createElement( 'a' );
-			$jump->setAttribute( 'class', 'mzv-lb-jump-link' );
-			$jump->setAttribute( 'href', '#' . $recipe_anchor_id );
-			$jump->textContent = __( 'Jump to Recipe ↓', 'little-lightbox' );
-			$overlay->appendChild( $jump );
 		}
 
 		$wrap->appendChild( $input );

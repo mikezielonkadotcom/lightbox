@@ -4,7 +4,7 @@ Tags: lightbox, images, gallery, photography, food blog
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,10 @@ This Little Lightbox of Mine automatically wraps `.entry-content` images in a co
 * Body scroll lock, focus trap, full accessibility support
 
 == Changelog ==
+
+= 2.2.0 =
+* Fix: Jump to Recipe now closes the Enhanced lightbox before smoothly scrolling to the WPRM recipe container.
+* Changed: Jump to Recipe is only available in Enhanced mode because CSS-Only mode cannot close itself with JavaScript.
 
 = 2.1.0 =
 * Changed: Rebranded plugin to This Little Lightbox of Mine with little-lightbox text domain and asset filenames.

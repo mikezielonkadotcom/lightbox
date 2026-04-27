@@ -3,7 +3,7 @@
  * Plugin Name: This Little Lightbox of Mine
  * Plugin URI:  https://github.com/mikezielonkadotcom/lightbox
  * Description: Lightweight image lightbox for WordPress with CSS-Only and Enhanced modes, gallery browsing, captions, swipe, keyboard navigation, and WPRM integration.
- * Version:     2.1.0
+ * Version:     2.2.0
  * Author:      Mike Zielonka Ventures
  * Author URI:  https://mikezielonka.com
  * License:     GPL-2.0-or-later
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MZV_LB_VERSION', '2.1.0' );
+define( 'MZV_LB_VERSION', '2.2.0' );
 define( 'MZV_LB_FILE', __FILE__ );
 define( 'MZV_LB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MZV_LB_URL', plugin_dir_url( __FILE__ ) );

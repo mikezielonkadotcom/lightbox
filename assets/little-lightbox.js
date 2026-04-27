@@ -259,13 +259,24 @@
 	}
 
 	// ── Update modal content ─────────────────────────────────────────────
+	function pageHasRecipeCard() {
+		return !!document.querySelector('.wprm-recipe-container');
+	}
+
+	function isInsideRecipeCard(wrapEl) {
+		return !!(wrapEl && wrapEl.closest('.wprm-recipe-container'));
+	}
+
+	function shouldShowJumpLink(wrapEl) {
+		return !!(config.wprmJumpEnabled && pageHasRecipeCard() && !isInsideRecipeCard(wrapEl));
+	}
+
 	function updateModalContent() {
 		var wrapEl = activeGroup[activeIndex];
 		if (!wrapEl) return;
 
 		var src = wrapEl.getAttribute('data-mzv-lb-src') || '';
 		var caption = wrapEl.getAttribute('data-mzv-lb-caption') || '';
-		var hasJump = wrapEl.getAttribute('data-mzv-lb-has-jump') === '1';
 
 		modalImg.src = src;
 		modalImg.alt = caption;
@@ -274,8 +285,9 @@
 		modalCaption.textContent = caption;
 		modalCaption.classList.toggle('is-empty', !caption);
 
-		// Jump link.
-		if (config.wprmJumpEnabled && hasJump) {
+		// Jump link: only show when this page has a WPRM recipe card and the
+		// active image is outside that recipe card.
+		if (shouldShowJumpLink(wrapEl)) {
 			modalJump.classList.remove('is-hidden');
 		} else {
 			modalJump.classList.add('is-hidden');

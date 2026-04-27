@@ -182,9 +182,11 @@ class MZV_LB_Content {
 		$caption = $this->get_caption_value( $img, $opts );
 		$wrap->setAttribute( 'data-mzv-lb-caption', $caption );
 
-		// WPRM jump.
+		// WPRM jump hint. JS performs the final DOM-based check so the link only
+		// appears when the page has a rendered recipe card and the active image is
+		// outside that card.
 		$has_jump = '0';
-		if ( $opts['wprm_jump_enabled'] && $this->current_post_has_recipe() ) {
+		if ( 'recipe' !== $group && $opts['wprm_jump_enabled'] && $this->current_post_has_recipe() ) {
 			$has_jump = '1';
 		}
 		$wrap->setAttribute( 'data-mzv-lb-has-jump', $has_jump );

@@ -21,7 +21,9 @@ Lightweight image lightbox for WordPress with CSS-Only and Enhanced modes. Fast,
 1. Download the [latest release](https://github.com/mikezielonkadotcom/little-lightbox/releases)
 2. Upload to `/wp-content/plugins/little-lightbox/`
 3. Activate in WordPress admin
-4. Done — no configuration needed
+4. Complete or skip the two-step welcome setup
+
+The welcome setup asks about optional Update Machine telemetry first, then offers the core lightbox mode, gallery, and animation choices. The telemetry choice and all plugin settings remain editable afterward. Network-active installations manage the shared telemetry choice in Network Admin while lightbox behavior remains site-specific.
 
 ## Excluding Images
 

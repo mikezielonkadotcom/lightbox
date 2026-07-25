@@ -86,10 +86,10 @@ if ! head -n 1 "includes/um-updater.php" | grep -q '^<?php'; then
   exit 1
 fi
 
-EXPECTED_UPDATER_SHA256="c8d38c6b11994296261dd68f2e1b5e3141642627ed70857e30bded83ec0325aa"
+EXPECTED_UPDATER_SHA256="f00dde08dfe7b2e48e656a3bc42c45670d9f3e0e3ed7b18468c21fa142c73143"
 UPDATER_SHA256="$(sha256sum "includes/um-updater.php" | awk '{print $1}')"
 if [ "$UPDATER_SHA256" != "$EXPECTED_UPDATER_SHA256" ]; then
-  echo "::error::includes/um-updater.php does not match um-updater v4.5.0" >&2
+  echo "::error::includes/um-updater.php does not match the um-updater v4.6.0 candidate" >&2
   exit 1
 fi
 
@@ -109,6 +109,7 @@ if command -v php >/dev/null 2>&1; then
     -path './release' -prune -o \
     -name '*.php' -type f -print0)
   php tests/feature-telemetry.php
+  php tests/onboarding.php
   php tests/updater-bootstrap.php
 else
   echo "::warning::php not found; skipping PHP lint"
@@ -150,7 +151,7 @@ PY
 
   ARCHIVED_UPDATER_SHA256="$(unzip -p "$ZIP_PATH" "$SLUG/includes/um-updater.php" | sha256sum | awk '{print $1}')"
   if [ "$ARCHIVED_UPDATER_SHA256" != "$EXPECTED_UPDATER_SHA256" ]; then
-    echo "::error::ZIP updater does not match um-updater v4.5.0" >&2
+    echo "::error::ZIP updater does not match the um-updater v4.6.0 candidate" >&2
     exit 1
   fi
 

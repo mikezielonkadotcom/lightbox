@@ -22,7 +22,7 @@
  *     $updater->set_license_client( $license_client );
  *
  * @package UM\PluginUpdater
- * @version 4.5.0
+ * @version 4.6.0
  */
 
 namespace UM\PluginUpdater;
@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 // copy's classes win the class_exists race below — so the copy that DOES boot
 // can detect version skew and warn (see Updater::maybe_warn_version_skew).
 // Keep this literal in sync with @version.
-$GLOBALS['um_updater_sdk_copies']['4.5.0'][] = __FILE__;
+$GLOBALS['um_updater_sdk_copies']['4.6.0'][] = __FILE__;
 
 /**
  * Register a plugin for self-hosted updates.
@@ -47,8 +47,11 @@ $GLOBALS['um_updater_sdk_copies']['4.5.0'][] = __FILE__;
  *     @type string $server     Base URL of the update server (e.g. 'https://updatemachine.com').
  *     @type callable $usage_callback Optional callback returning flat usage data for telemetry.
  *     @type array $feature_telemetry Optional versioned feature telemetry schema and callback.
+ *     @type string $telemetry_consent_mode Optional opt_out, opt_in, or disabled policy. Default opt_out.
+ *     @type string $telemetry_privacy_url Optional public privacy-policy URL used by the settings control.
+ *     @type string $telemetry_data_description Optional exact local disclosure shown beside the control.
  * }
- * @return Updater|null The updater instance, or null if already registered.
+ * @return Updater|null The updater instance, the existing instance for a duplicate slug, or null for an empty slug.
  */
 if ( ! function_exists( __NAMESPACE__ . '\\register' ) ) {
 function register( array $config ): ?Updater {
@@ -422,7 +425,7 @@ class Updater {
 	private ?Feature_Telemetry $feature_telemetry = null;
 
 	/** SDK version reported in telemetry — must match the file's @version. */
-	public const SDK_VERSION = '4.5.0';
+	public const SDK_VERSION = '4.6.0';
 
 	private const CHALLENGE_TTL             = 15 * MINUTE_IN_SECONDS;
 	private const REGISTRATION_RETRY_DELAYS = [
@@ -432,7 +435,7 @@ class Updater {
 	];
 	private const MAX_REGISTRATION_RETRIES = 3;
 
-	/** @var Telemetry_Opt_Out Per-plugin telemetry opt-out (option storage + settings UI). */
+	/** @var Telemetry_Opt_Out Per-plugin telemetry preference compatibility wrapper. */
 	private Telemetry_Opt_Out $opt_out;
 
 	/** @var \DPT_License_Client|null Optional license client for gated updates. */
@@ -458,6 +461,7 @@ class Updater {
 			[
 				$this->key_option,
 				$this->hash_expected_option,
+				'um_telemetry_consent_' . $this->slug,
 				'um_telemetry_optout_' . $this->slug,
 				$this->download_403_option,
 				$this->opportunistic_registration_option,
@@ -468,7 +472,15 @@ class Updater {
 		if ( ! empty( $config['feature_telemetry'] ) && is_array( $config['feature_telemetry'] ) ) {
 			$this->feature_telemetry = new Feature_Telemetry( $this->slug, $config['feature_telemetry'] );
 		}
-		$this->opt_out    = new Telemetry_Opt_Out( $this->slug, $this->scope );
+		$this->opt_out    = new Telemetry_Opt_Out(
+			$this->slug,
+			$this->scope,
+			[
+				'mode'             => $config['telemetry_consent_mode'] ?? Telemetry_Preference::MODE_OPT_OUT,
+				'privacy_url'      => $config['telemetry_privacy_url'] ?? '',
+				'data_description' => $config['telemetry_data_description'] ?? '',
+			]
+		);
 	}
 
 	/**
@@ -486,6 +498,13 @@ class Updater {
 	}
 
 	/**
+	 * Get the positive telemetry sharing preference used by settings and onboarding.
+	 */
+	public function telemetry_preference(): Telemetry_Preference {
+		return $this->opt_out;
+	}
+
+	/**
 	 * Delete all options/transients this updater stores for a plugin.
 	 *
 	 * Call from the host plugin's uninstall.php:
@@ -496,6 +515,7 @@ class Updater {
 		$options = [
 			'um_site_key_' . $slug,
 			'um_hash_expected_' . $slug,
+			'um_telemetry_consent_' . $slug,
 			'um_telemetry_optout_' . $slug,
 			'um_download_403_' . $slug,
 			'um_registration_last_attempt_' . $slug,
@@ -658,7 +678,7 @@ class Updater {
 		add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 2 );
 		add_filter( 'upgrader_pre_download', [ $this, 'verify_download' ], 10, 4 );
 
-		// Wire the stored opt-out preference into the telemetry filter
+		// Wire the stored sharing preference into the telemetry filter
 		// and handle settings-form saves on admin_init.
 		$this->opt_out->register_hooks();
 
@@ -715,6 +735,7 @@ class Updater {
 				[
 					$this->key_option,
 					$this->hash_expected_option,
+					'um_telemetry_consent_' . $this->slug,
 					'um_telemetry_optout_' . $this->slug,
 					$this->download_403_option,
 					$this->opportunistic_registration_option,
@@ -778,7 +799,7 @@ class Updater {
 			],
 			'body'    => wp_json_encode( [
 				'site_url'       => $site_url,
-				'site_name'      => $this->opt_out->is_opted_out() ? '' : $this->scope->site_name(),
+				'site_name'      => $this->opt_out->is_enabled() ? $this->scope->site_name() : '',
 				'plugin_slug'    => $plugin_slug,
 				'plugin_version' => $current_version,
 				'sdk_version'    => self::SDK_VERSION,
@@ -1715,115 +1736,189 @@ class Updater {
 } // end class_exists guard
 
 /**
- * Per-plugin telemetry opt-out: persistent preference + drop-in settings UI.
- *
- * Created and hooked automatically by Updater. Host plugins integrate with a
- * single line inside any admin settings <form>:
- *
- *     $updater->telemetry_opt_out()->render_field();
- *
- * Saving is self-contained: the field carries its own nonce, and maybe_save()
- * runs on admin_init, so it works inside Settings API forms (options.php),
- * custom panels, or anywhere else that POSTs to wp-admin. When opted out, the
- * hourly update check sends an empty telemetry body and registration omits
- * the site name — see the um_updater_disable_telemetry filter in Updater.
+ * Per-plugin optional telemetry policy, scoped preference, and settings control.
  */
-if ( ! class_exists( __NAMESPACE__ . '\\Telemetry_Opt_Out' ) ) {
-class Telemetry_Opt_Out {
+if ( ! class_exists( __NAMESPACE__ . '\\Telemetry_Preference' ) ) {
+class Telemetry_Preference {
+
+	public const MODE_OPT_OUT = 'opt_out';
+	public const MODE_OPT_IN  = 'opt_in';
+	public const MODE_DISABLED = 'disabled';
 
 	private string $slug;
 	private string $option;
+	private string $legacy_option;
+	private string $mode;
+	private string $privacy_url;
+	private string $data_description;
 	private Storage_Scope $scope;
 
-	public function __construct( string $slug, Storage_Scope $scope ) {
-		$this->slug   = $slug;
-		$this->option = 'um_telemetry_optout_' . $slug;
-		$this->scope  = $scope;
+	public function __construct( string $slug, Storage_Scope $scope, array $config = [] ) {
+		$this->slug             = $slug;
+		$this->option           = 'um_telemetry_consent_' . $slug;
+		$this->legacy_option    = 'um_telemetry_optout_' . $slug;
+		$this->scope            = $scope;
+		$this->mode             = $this->sanitize_mode( $config['mode'] ?? self::MODE_OPT_OUT );
+		$this->privacy_url      = is_string( $config['privacy_url'] ?? null ) ? $config['privacy_url'] : '';
+		$this->data_description = is_string( $config['data_description'] ?? null ) ? $config['data_description'] : '';
 	}
 
 	/**
-	 * Hook the stored preference into the updater's telemetry filter and
-	 * listen for settings-form saves. Called by Updater::init().
+	 * Hook preference enforcement and settings-form saves.
 	 */
 	public function register_hooks(): void {
 		add_filter( 'um_updater_disable_telemetry', [ $this, 'filter_disabled' ], 10, 2 );
 		add_action( 'admin_init', [ $this, 'maybe_save' ] );
 	}
 
-	/**
-	 * Whether this site has opted out of telemetry for this plugin.
-	 */
-	public function is_opted_out(): bool {
-		return (bool) $this->scope->get_option( $this->option, false );
+	public function mode(): string {
+		return $this->mode;
+	}
+
+	public function is_network(): bool {
+		return $this->scope->is_network();
+	}
+
+	public function required_capability(): string {
+		return $this->is_network() ? 'manage_network_options' : 'manage_options';
+	}
+
+	public function field_name(): string {
+		return $this->option;
 	}
 
 	/**
-	 * Persist the opt-out preference (programmatic API — the settings field
-	 * uses this too). Clears the cached update check so the next request
-	 * honors the new preference immediately.
+	 * Whether optional telemetry is enabled under the configured policy.
 	 */
-	public function set_opted_out( bool $opted_out ): void {
-		$this->scope->update_option( $this->option, $opted_out ? 1 : 0 );
+	public function is_enabled(): bool {
+		if ( self::MODE_DISABLED === $this->mode ) {
+			return false;
+		}
+
+		$missing = new \stdClass();
+		$stored  = $this->scope->get_option( $this->option, $missing );
+		if ( $missing !== $stored ) {
+			return 'enabled' === $stored;
+		}
+
+		$legacy = $this->scope->get_option( $this->legacy_option, $missing );
+		if ( $missing !== $legacy ) {
+			return ! (bool) $legacy;
+		}
+
+		return self::MODE_OPT_OUT === $this->mode;
+	}
+
+	/**
+	 * Persist a positive sharing preference and mirror the legacy opt-out bit.
+	 */
+	public function set_enabled( bool $enabled ): void {
+		$enabled = self::MODE_DISABLED === $this->mode ? false : $enabled;
+		$this->scope->update_option( $this->option, $enabled ? 'enabled' : 'disabled' );
+		$this->scope->update_option( $this->legacy_option, $enabled ? 0 : 1 );
 		$this->scope->delete_transient( 'um_update_' . $this->slug );
 	}
 
 	/**
-	 * Feed the stored preference into the um_updater_disable_telemetry filter.
+	 * Compatibility API retained for host plugins using SDK 4.2 through 4.5.
+	 */
+	public function is_opted_out(): bool {
+		return ! $this->is_enabled();
+	}
+
+	/**
+	 * Compatibility API retained for host plugins using SDK 4.2 through 4.5.
+	 */
+	public function set_opted_out( bool $opted_out ): void {
+		$this->set_enabled( ! $opted_out );
+	}
+
+	/**
+	 * Feed the preference into the existing telemetry-disable filter.
 	 *
 	 * @param bool   $disabled Current filter value.
 	 * @param string $slug     Plugin slug being checked.
 	 */
 	public function filter_disabled( bool $disabled, string $slug ): bool {
-		if ( $slug === $this->slug && $this->is_opted_out() ) {
-			return true;
-		}
-		return $disabled;
+		return $disabled || ( $slug === $this->slug && ! $this->is_enabled() );
 	}
 
 	/**
-	 * Render the opt-out checkbox. Place inside any admin settings <form>.
+	 * Render the positive sharing checkbox used by settings and onboarding.
 	 */
-	public function render_field(): void {
-		wp_nonce_field( 'um_privacy_optout_' . $this->slug, '_um_privacy_nonce_' . $this->slug );
+	public function render_control( bool $include_nonce = true ): void {
+		if ( self::MODE_DISABLED === $this->mode ) {
+			echo '<p class="description">' . esc_html__( 'Optional update telemetry is disabled for this plugin.', 'um-updater' ) . '</p>';
+			return;
+		}
+
+		if ( $include_nonce ) {
+			wp_nonce_field( 'um_telemetry_preference_' . $this->slug, '_um_telemetry_nonce_' . $this->slug );
+		}
+		$description = '' !== $this->data_description
+			? $this->data_description
+			: __( 'Share this site\'s URL and name, plugin and server-environment versions, multisite scope, and bounded plugin feature settings with Update Machine. No post content, user data, license keys, site keys, or free-form text is included. Updates keep working if sharing is disabled.', 'um-updater' );
 		?>
-		<fieldset class="um-telemetry-opt-out">
+		<fieldset class="um-telemetry-preference">
 			<label for="<?php echo esc_attr( $this->option ); ?>">
 				<input type="checkbox"
 					id="<?php echo esc_attr( $this->option ); ?>"
 					name="<?php echo esc_attr( $this->option ); ?>"
 					value="1"
-					<?php checked( $this->is_opted_out() ); ?> />
-				<?php esc_html_e( 'Don\'t share this site\'s details during update checks', 'um-updater' ); ?>
+					<?php checked( $this->is_enabled() ); ?> />
+				<?php esc_html_e( 'Share optional update and feature telemetry', 'um-updater' ); ?>
 			</label>
 			<p class="description">
-				<?php esc_html_e( 'By default, update checks share this site\'s URL, name, and the installed plugin version with the update server so updates can be delivered and support requests matched to installs. Opt out to send update checks with no site information. Updates keep working either way.', 'um-updater' ); ?>
+				<?php echo esc_html( $description ); ?>
+				<?php if ( '' !== $this->privacy_url ) : ?>
+					<a href="<?php echo esc_url( $this->privacy_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Privacy policy', 'um-updater' ); ?></a>
+				<?php endif; ?>
 			</p>
 		</fieldset>
 		<?php
 	}
 
 	/**
-	 * Save the preference when a settings form containing render_field() is
-	 * submitted. Hooked to admin_init; no-op unless our nonce is present.
+	 * Backward-compatible renderer. The UI is now positive in every mode.
+	 */
+	public function render_field(): void {
+		$this->render_control();
+	}
+
+	/**
+	 * Save a submitted positive sharing preference.
 	 */
 	public function maybe_save(): void {
-		$nonce_key = '_um_privacy_nonce_' . $this->slug;
-		if ( ! isset( $_POST[ $nonce_key ] ) ) {
+		$nonce_key = '_um_telemetry_nonce_' . $this->slug;
+		if ( ! isset( $_POST[ $nonce_key ] ) || self::MODE_DISABLED === $this->mode ) {
 			return;
 		}
-		$capability = $this->scope->is_network() ? 'manage_network_options' : 'manage_options';
-		if ( ! current_user_can( $capability ) ) {
+		if ( ! current_user_can( $this->required_capability() ) ) {
 			return;
 		}
 		$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) );
-		if ( ! wp_verify_nonce( $nonce, 'um_privacy_optout_' . $this->slug ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'um_telemetry_preference_' . $this->slug ) ) {
 			return;
 		}
 
-		$opted_out = ! empty( $_POST[ $this->option ] );
-		if ( $opted_out !== $this->is_opted_out() ) {
-			$this->set_opted_out( $opted_out );
+		$enabled = ! empty( $_POST[ $this->option ] );
+		if ( $enabled !== $this->is_enabled() ) {
+			$this->set_enabled( $enabled );
 		}
 	}
+
+	private function sanitize_mode( $mode ): string {
+		return in_array( $mode, [ self::MODE_OPT_OUT, self::MODE_OPT_IN, self::MODE_DISABLED ], true )
+			? $mode
+			: self::MODE_OPT_OUT;
+	}
+}
+} // end class_exists guard
+
+/**
+ * Legacy class name retained for plugins calling telemetry_opt_out().
+ */
+if ( ! class_exists( __NAMESPACE__ . '\\Telemetry_Opt_Out' ) ) {
+class Telemetry_Opt_Out extends Telemetry_Preference {
 }
 } // end class_exists guard

@@ -102,6 +102,12 @@ class MZV_LB_Admin {
 				submit_button();
 				?>
 			</form>
+			<?php
+			$onboarding = $GLOBALS['little_lightbox_onboarding'] ?? null;
+			if ( $onboarding && method_exists( $onboarding, 'url' ) ) :
+				?>
+				<p><a href="<?php echo esc_url( $onboarding->url() ); ?>"><?php esc_html_e( 'Review welcome setup', 'little-lightbox' ); ?></a></p>
+			<?php endif; ?>
 		</div>
 		<style>
 			.llb-enhanced-only { transition: opacity .2s; }
@@ -172,6 +178,20 @@ class MZV_LB_Admin {
 
 	public function field_update_telemetry(): void {
 		$updater = $GLOBALS['little_lightbox_updater'] ?? null;
+
+		if ( $updater && method_exists( $updater, 'telemetry_preference' ) ) {
+			$preference = $updater->telemetry_preference();
+			if ( method_exists( $preference, 'is_network' ) && $preference->is_network() ) {
+				$onboarding = $GLOBALS['little_lightbox_onboarding'] ?? null;
+				$url = $onboarding && method_exists( $onboarding, 'url' )
+					? $onboarding->url()
+					: network_admin_url( 'settings.php?page=little-lightbox-setup' );
+				echo '<p class="description">' . esc_html__( 'Telemetry is shared network-wide for this network-active plugin.', 'little-lightbox' ) . ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Manage in Network Admin', 'little-lightbox' ) . '</a></p>';
+				return;
+			}
+			$preference->render_control();
+			return;
+		}
 
 		if ( $updater && method_exists( $updater, 'telemetry_opt_out' ) ) {
 			$updater->telemetry_opt_out()->render_field();

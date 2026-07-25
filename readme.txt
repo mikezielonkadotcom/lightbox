@@ -4,7 +4,7 @@ Tags: lightbox, images, gallery, photography, food blog
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.6.5
+Stable tag: 2.7.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,9 +60,15 @@ Optional usage snapshots are for plugin feature flags/counters, not user data. T
 
 Little Lightbox reports a typed snapshot of its selected mode, caption source, gallery and animation settings, recipe-card and Jump to Recipe integrations, ad-layering toggle, and trigger icon size. The snapshot contains only booleans and declared enum values. It never includes captions, image details, posts, selectors, URLs, keys, or other free-form values.
 
-Site owners can disable the telemetry payload from the plugin settings screen. Update checks still happen, but the request body is empty; the update server sees only what any HTTP request carries, plus the auth headers needed to serve the manifest.
+The welcome setup asks about telemetry first. Sharing is enabled by default, can be unchecked without blocking setup, and remains editable from the plugin settings screen. Update checks and licensing keep working when sharing is disabled, optional callbacks do not run, and the update-check request body is empty. Network-active installations store one network preference managed from Network Admin; site-active installations store a separate preference per site. See the [Update Machine privacy policy](https://updatemachine.com/privacy).
 
 == Changelog ==
+
+= 2.7.0 =
+* Added a resumable two-step welcome setup with telemetry as the first question and permanent access from plugin settings.
+* Added explicit default-on telemetry sharing with a clear opt-out, exact bounded-data disclosure, and privacy-policy link.
+* Added network-scoped onboarding and telemetry controls for network-active multisite installations.
+* Updated the bundled Update Machine updater SDK to the v4.6.0 consent-mode candidate while retaining mixed-load compatibility with v4.5.0.
 
 = 2.6.5 =
 * Fixed zero-config registration on REST and cron requests so free installs can receive a site key and submit authorized telemetry.

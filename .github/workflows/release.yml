@@ -29,7 +29,7 @@ jobs:
         run: |
           set -euo pipefail
           FILE="includes/um-updater.php"
-          EXPECTED_SHA256="f00dde08dfe7b2e48e656a3bc42c45670d9f3e0e3ed7b18468c21fa142c73143"
+          EXPECTED_SHA256="0186130818053f3b65820645c5f6d354269701d07eb1e0729a083cbc3525687a"
           if [ ! -s "$FILE" ]; then
             echo "::error::$FILE is missing or empty"
             exit 1

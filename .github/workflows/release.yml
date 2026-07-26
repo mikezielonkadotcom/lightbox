@@ -71,22 +71,23 @@ jobs:
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Validate plugin structure
-        shell: bash
-        run: bash scripts/validate-plugin-package.sh
-
       - name: Setup Node.js
-        if: hashFiles('package.json') != ''
         uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: Build frontend assets
-        if: hashFiles('package.json') != ''
+      - name: Test and build admin interface
         run: |
           npm ci
-          npm run build:prod 2>/dev/null || npm run build 2>/dev/null || npm run prod 2>/dev/null || echo "No build script, skipping"
+          npm run format:check
+          npm run lint:js
+          npm run test:js
+          npm run build
+
+      - name: Validate plugin structure
+        shell: bash
+        run: bash scripts/validate-plugin-package.sh
 
       - name: Build release ZIP
         shell: bash

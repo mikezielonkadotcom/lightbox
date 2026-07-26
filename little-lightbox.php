@@ -47,16 +47,17 @@ add_action( 'init', function() {
 	$content = new MZV_LB_Content( $settings );
 	$content->hooks();
 
-	$admin = new MZV_LB_Admin( $settings );
-	$admin->hooks();
-
 	$onboarding = new MZV_LB_Onboarding( $settings, $GLOBALS['little_lightbox_updater'] ?? null );
 	$onboarding->hooks();
 	$GLOBALS['little_lightbox_onboarding'] = $onboarding;
+
+	$admin = new MZV_LB_Admin( $onboarding );
+	$admin->hooks();
 } );
 
 // Activation hook for WPRM conflict check.
-register_activation_hook( MZV_LB_FILE, function( bool $network_wide = false ) {
+register_activation_hook( MZV_LB_FILE, function( $network_wide = false ) {
+	$network_wide = true === $network_wide;
 	MZV_LB_Onboarding::mark_pending( $network_wide );
 
 	// Check for WPRM conflict on activation.

@@ -99,6 +99,10 @@ function wp_nonce_field( string $action, string $name ): void {
 	echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $action ) . '">';
 }
 
+function wp_create_nonce( string $action ): string {
+	return 'nonce-' . $action;
+}
+
 function submit_button( string $text, string $type = 'primary', string $name = 'submit', bool $wrap = true ): void {
 	unset( $wrap );
 	echo '<button class="button button-' . esc_attr( $type ) . '" name="' . esc_attr( $name ) . '">' . esc_html( $text ) . '</button>';
@@ -228,23 +232,21 @@ MZV_LB_Onboarding::mark_pending( false );
 $state = $wizard->state();
 llb_onboarding_assert( 'pending' === $state['status'] && 1 === $state['step'], 'Site activation should seed step one.' );
 
-ob_start();
-$wizard->render_page();
-$privacy_html = (string) ob_get_clean();
-llb_onboarding_assert( false !== strpos( $privacy_html, 'Step 1 of 2: Privacy' ), 'Telemetry must be the first wizard question.' );
-llb_onboarding_assert( false !== strpos( $privacy_html, 'checked="checked"' ), 'Opt-out mode should render sharing checked by default.' );
-llb_onboarding_assert( false !== strpos( $privacy_html, 'bounded Little Lightbox values' ), 'The exact bounded-data disclosure should be visible.' );
-llb_onboarding_assert( false !== strpos( $privacy_html, 'https://updatemachine.com/privacy' ), 'The privacy-policy placeholder should be linked.' );
-llb_onboarding_assert( $preference->rendered_without_nonce, 'The wizard must use its own nonce rather than the SDK self-save nonce.' );
+$privacy_data = $wizard->client_data();
+llb_onboarding_assert( true === $privacy_data['sharingEnabled'], 'Opt-out mode should start with sharing enabled.' );
+llb_onboarding_assert( false !== strpos( $privacy_data['telemetryDetails'], 'bounded Little Lightbox values' ), 'The exact bounded-data disclosure should be exposed to React.' );
+llb_onboarding_assert( 'https://updatemachine.com/privacy' === $privacy_data['privacyUrl'], 'The privacy-policy URL should be exposed to React.' );
+llb_onboarding_assert( false !== strpos( $privacy_data['actionUrl'], 'page=little-lightbox' ), 'Welcome must use the existing plugin settings slug.' );
+llb_onboarding_assert( false !== strpos( $privacy_data['actionUrl'], 'view=welcome' ), 'Welcome must be a view within the plugin settings interface.' );
+llb_onboarding_assert( false === strpos( $privacy_data['actionUrl'], 'little-lightbox-setup' ), 'The retired duplicate menu slug must not remain.' );
 
 llb_onboarding_invoke( $wizard, 'set_sharing_enabled', [ false ] );
 llb_onboarding_assert( ! $preference->enabled, 'The positive sharing choice should persist through the SDK preference.' );
 
 llb_onboarding_invoke( $wizard, 'save_state', [ 'in_progress', 2 ] );
-ob_start();
-$wizard->render_page();
-$setup_html = (string) ob_get_clean();
-llb_onboarding_assert( false !== strpos( $setup_html, 'Step 2 of 2: Lightbox setup' ), 'An in-progress wizard should resume at step two.' );
+$setup_data = $wizard->client_data();
+llb_onboarding_assert( 2 === $setup_data['state']['step'], 'An in-progress wizard should resume at step two.' );
+llb_onboarding_assert( 'enhanced' === $setup_data['options']['lightbox_mode'], 'The React setup view should receive current plugin settings.' );
 
 $GLOBALS['llb_options'][ MZV_LB_Settings::OPTION_KEY ] = array_merge(
 	MZV_LB_Settings::defaults(),
@@ -258,10 +260,9 @@ llb_onboarding_assert( false === $saved['gallery_enabled'] && false === $saved['
 llb_onboarding_assert( 'description' === $saved['caption_source'] && 'super' === $saved['trigger_icon_size'], 'Wizard must preserve unrelated plugin settings.' );
 
 llb_onboarding_invoke( $wizard, 'save_state', [ 'skipped', 2 ] );
-ob_start();
-$wizard->render_page();
-$skipped_html = (string) ob_get_clean();
-llb_onboarding_assert( false !== strpos( $skipped_html, 'Setup skipped' ) && false !== strpos( $skipped_html, 'Review setup' ), 'Skipped setup must remain revisitable.' );
+$skipped_data = $wizard->client_data();
+llb_onboarding_assert( 'skipped' === $skipped_data['state']['status'], 'Skipped setup must remain revisitable.' );
+llb_onboarding_assert( false !== strpos( $skipped_data['settingsUrl'], 'page=little-lightbox' ), 'Finished setup should return to the same settings interface.' );
 
 llb_onboarding_invoke( $wizard, 'save_state', [ 'in_progress', 1 ] );
 llb_onboarding_assert( 1 === $wizard->state()['step'], 'Restart should return to the privacy question.' );
@@ -283,5 +284,11 @@ $GLOBALS['llb_capabilities']['manage_network_options'] = false;
 llb_onboarding_assert( false === llb_onboarding_invoke( $network_wizard, 'can_manage' ), 'Site administrators must not manage network onboarding.' );
 $GLOBALS['llb_capabilities']['manage_network_options'] = true;
 llb_onboarding_assert( true === llb_onboarding_invoke( $network_wizard, 'can_manage' ), 'Network administrators should manage network onboarding.' );
+
+$source = file_get_contents( dirname( __DIR__ ) . '/includes/class-onboarding.php' );
+llb_onboarding_assert( false !== $source, 'Onboarding source should be readable.' );
+llb_onboarding_assert( false === strpos( $source, 'add_options_page(' ), 'Onboarding must not register a duplicate site settings menu.' );
+llb_onboarding_assert( false === strpos( $source, 'add_submenu_page(' ), 'Onboarding must not register a duplicate network settings menu.' );
+llb_onboarding_assert( false !== strpos( $source, 'isset( $_POST[ $field ] )' ), 'Skipping privacy setup must preserve a posted telemetry choice.' );
 
 echo "Little Lightbox onboarding tests passed.\n";

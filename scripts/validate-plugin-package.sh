@@ -86,7 +86,33 @@ if ! head -n 1 "includes/um-updater.php" | grep -q '^<?php'; then
   exit 1
 fi
 
-EXPECTED_UPDATER_SHA256="f00dde08dfe7b2e48e656a3bc42c45670d9f3e0e3ed7b18468c21fa142c73143"
+for admin_asset in \
+  assets/admin/index.js \
+  assets/admin/index.asset.php \
+  assets/admin/style-index.css \
+  assets/admin/style-index-rtl.css; do
+  if [ ! -s "$admin_asset" ]; then
+    echo "::error::Required React admin asset is missing or empty: $admin_asset" >&2
+    exit 1
+  fi
+done
+
+php -r '
+  $asset = require "assets/admin/index.asset.php";
+  $required = ["wp-components", "wp-element", "wp-i18n"];
+  if (!is_array($asset) || !isset($asset["dependencies"], $asset["version"])) {
+    fwrite(STDERR, "::error::Invalid React admin asset metadata\n");
+    exit(1);
+  }
+  foreach ($required as $dependency) {
+    if (!in_array($dependency, $asset["dependencies"], true)) {
+      fwrite(STDERR, "::error::Missing React admin dependency: {$dependency}\n");
+      exit(1);
+    }
+  }
+'
+
+EXPECTED_UPDATER_SHA256="0186130818053f3b65820645c5f6d354269701d07eb1e0729a083cbc3525687a"
 UPDATER_SHA256="$(sha256sum "includes/um-updater.php" | awk '{print $1}')"
 if [ "$UPDATER_SHA256" != "$EXPECTED_UPDATER_SHA256" ]; then
   echo "::error::includes/um-updater.php does not match the um-updater v4.6.0 candidate" >&2
@@ -109,6 +135,7 @@ if command -v php >/dev/null 2>&1; then
     -path './release' -prune -o \
     -name '*.php' -type f -print0)
   php tests/feature-telemetry.php
+  php tests/admin-interface.php
   php tests/onboarding.php
   php tests/updater-bootstrap.php
 else
@@ -155,7 +182,7 @@ PY
     exit 1
   fi
 
-  FORBIDDEN='(^|/)(\.git|\.github|\.claude|\.openclaw|node_modules|vendor|tests|docs|scripts|release)(/|$)|(^|/)(README\.md|\.distignore|\.gitignore|composer\..*|package.*\.json|phpunit\..*|.*\.map|.*\.zip)$'
+  FORBIDDEN='(^|/)(\.git|\.github|\.claude|\.openclaw|node_modules|vendor|tests|docs|scripts|src|release)(/|$)|(^|/)(README\.md|\.distignore|\.gitignore|babel\.config\.js|composer\..*|package.*\.json|phpunit\..*|.*\.map|.*\.zip)$'
   if grep -Eq "$FORBIDDEN" "$ZIP_LIST"; then
     echo "::error::ZIP contains repository-only files:" >&2
     grep -E "$FORBIDDEN" "$ZIP_LIST" >&2
@@ -170,6 +197,8 @@ PY
       $0 == slug "/readme.txt" { next }
       $0 == slug "/assets/" { next }
       $0 ~ "^" slug "/assets/[^/]+\\.(css|js)$" { next }
+      $0 == slug "/assets/admin/" { next }
+      $0 ~ "^" slug "/assets/admin/[^/]+\\.(css|js|php)$" { next }
       $0 == slug "/includes/" { next }
       $0 ~ "^" slug "/includes/[^/]+\\.php$" { next }
       { print }

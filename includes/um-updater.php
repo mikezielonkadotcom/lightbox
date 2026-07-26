@@ -727,8 +727,15 @@ class Updater {
 
 	/**
 	 * Auto-register with the update server on plugin activation.
+	 *
+	 * WordPress 6.0 and older WP-CLI activation paths can pass null instead
+	 * of false for a site activation, so normalize the hook argument here.
+	 *
+	 * @param mixed $network_wide Whether the plugin is network activated.
 	 */
-	public function on_activation( bool $network_wide = false ): void {
+	public function on_activation( $network_wide = false ): void {
+		$network_wide = true === $network_wide;
+
 		if ( $network_wide && function_exists( 'is_multisite' ) && is_multisite() ) {
 			$this->scope->force_network();
 			$this->scope->migrate_main_site_state(

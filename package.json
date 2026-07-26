@@ -1,0 +1,25 @@
+{
+	"name": "little-lightbox-admin",
+	"version": "2.7.0",
+	"private": true,
+	"scripts": {
+		"build": "wp-scripts build src/admin/index.js --output-path=assets/admin",
+		"format:check": "prettier --check --config node_modules/@wordpress/prettier-config/lib/index.js \"src/admin/**/*.{js,css}\"",
+		"lint:js": "wp-scripts lint-js --ignore-pattern assets --ignore-pattern release --ignore-pattern node_modules",
+		"test:js": "wp-scripts test-unit-js --runInBand"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@babel/plugin-transform-react-jsx": "^7.29.7",
+		"@babel/plugin-transform-runtime": "^7.29.7",
+		"@babel/preset-env": "^7.29.7",
+		"@testing-library/react": "^16.3.2",
+		"@testing-library/user-event": "^14.6.1",
+		"@wordpress/components": "^37.0.0",
+		"@wordpress/element": "^8.3.0",
+		"@wordpress/i18n": "^6.24.0",
+		"@wordpress/scripts": "^33.0.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	}
+}

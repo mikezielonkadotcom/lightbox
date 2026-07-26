@@ -271,6 +271,7 @@ function WelcomeWizard( { config } ) {
 										'little-lightbox'
 									) }
 									checked={ gallery }
+									disabled={ mode !== 'enhanced' }
 									onChange={ setGallery }
 								/>
 								<ToggleControl
@@ -279,11 +280,20 @@ function WelcomeWizard( { config } ) {
 										'little-lightbox'
 									) }
 									checked={ animations }
+									disabled={ mode !== 'enhanced' }
 									onChange={ setAnimations }
 								/>
 							</div>
 						) }
 						<div className="llb-admin__actions">
+							<Button
+								type="submit"
+								name="llb_onboarding_action"
+								value="back"
+								variant="secondary"
+							>
+								{ __( 'Back', 'little-lightbox' ) }
+							</Button>
 							<Button
 								type="submit"
 								name="llb_onboarding_action"

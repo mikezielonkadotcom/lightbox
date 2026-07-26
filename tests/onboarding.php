@@ -290,5 +290,6 @@ llb_onboarding_assert( false !== $source, 'Onboarding source should be readable.
 llb_onboarding_assert( false === strpos( $source, 'add_options_page(' ), 'Onboarding must not register a duplicate site settings menu.' );
 llb_onboarding_assert( false === strpos( $source, 'add_submenu_page(' ), 'Onboarding must not register a duplicate network settings menu.' );
 llb_onboarding_assert( false !== strpos( $source, 'isset( $_POST[ $field ] )' ), 'Skipping privacy setup must preserve a posted telemetry choice.' );
+llb_onboarding_assert( false !== strpos( $source, "if ( 'back' === \$action )" ), 'Step two must provide a server-handled path back to privacy.' );
 
 echo "Little Lightbox onboarding tests passed.\n";

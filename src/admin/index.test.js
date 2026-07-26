@@ -222,6 +222,15 @@ describe( 'Little Lightbox admin interface', () => {
 			container.querySelector( 'input[name="lightbox_mode"]' ).value
 		).toBe( 'css' );
 		expect(
+			screen.getByLabelText( 'Enable gallery browsing' ).disabled
+		).toBe( true );
+		expect(
+			screen.getByLabelText( 'Enable lightbox animations' ).disabled
+		).toBe( true );
+		expect(
+			container.querySelector( 'button[value="back"]' )
+		).toBeTruthy();
+		expect(
 			container.querySelector( 'button[value="save_setup"]' )
 		).toBeTruthy();
 	} );

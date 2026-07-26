@@ -192,6 +192,11 @@ class MZV_LB_Onboarding {
 			$this->redirect_to_welcome();
 		}
 
+		if ( 'back' === $action ) {
+			$this->save_state( 'in_progress', 1 );
+			$this->redirect_to_welcome();
+		}
+
 		if ( 'save_preference' === $action ) {
 			$field = $this->sharing_field_name();
 			// The plugin nonce and capability are verified immediately above.

@@ -40,10 +40,10 @@ jobs:
           fi
           ACTUAL_SHA256="$(sha256sum "$FILE" | awk '{print $1}')"
           if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
-            echo "::error::$FILE does not match the um-updater v4.6.0 candidate"
+            echo "::error::$FILE does not match the tagged um-updater v4.6.0 release"
             exit 1
           fi
-          echo "um-updater v4.6.0 candidate verified"
+          echo "Tagged um-updater v4.6.0 release verified"
 
       - name: Determine plugin metadata
         id: meta

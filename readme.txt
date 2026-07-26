@@ -70,7 +70,7 @@ The welcome setup asks about telemetry first. Sharing is enabled by default, can
 * Added explicit default-on telemetry sharing with a clear opt-out, exact bounded-data disclosure, and privacy-policy link.
 * Added network-scoped onboarding and telemetry controls for network-active multisite installations.
 * Fixed activation on WordPress 6.0 and older WP-CLI paths that pass a nullable network flag.
-* Updated the bundled Update Machine updater SDK to the v4.6.0 consent-mode candidate while retaining mixed-load compatibility with v4.5.0.
+* Updated the bundled Update Machine updater SDK to the tagged v4.6.0 consent-mode release while retaining mixed-load compatibility with v4.5.0.
 
 = 2.6.5 =
 * Fixed zero-config registration on REST and cron requests so free installs can receive a site key and submit authorized telemetry.

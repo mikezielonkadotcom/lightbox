@@ -17,6 +17,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Test and build admin interface
+        run: |
+          npm ci
+          npm run format:check
+          npm run lint:js
+          npm run test:js
+          npm run build
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:

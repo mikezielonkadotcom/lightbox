@@ -127,6 +127,11 @@ class MZV_LB_Onboarding {
 	 * Redirect once after activation or an upgrade that introduced onboarding.
 	 */
 	public function maybe_redirect(): void {
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+		if ( 'GET' !== $method ) {
+			return;
+		}
+
 		if ( ! $this->can_manage() || wp_doing_ajax() || wp_doing_cron() ) {
 			return;
 		}

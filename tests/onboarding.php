@@ -232,6 +232,13 @@ MZV_LB_Onboarding::mark_pending( false );
 $state = $wizard->state();
 llb_onboarding_assert( 'pending' === $state['status'] && 1 === $state['step'], 'Site activation should seed step one.' );
 
+$_SERVER['REQUEST_METHOD'] = 'POST';
+$_GET                      = [];
+$wizard->maybe_redirect();
+$state = $wizard->state();
+llb_onboarding_assert( 'pending' === $state['status'] && 1 === $state['step'], 'POST requests must not consume pending onboarding or redirect before WordPress processes the write.' );
+unset( $_SERVER['REQUEST_METHOD'] );
+
 $privacy_data = $wizard->client_data();
 llb_onboarding_assert( true === $privacy_data['sharingEnabled'], 'Opt-out mode should start with sharing enabled.' );
 llb_onboarding_assert( false !== strpos( $privacy_data['telemetryDetails'], 'bounded Little Lightbox values' ), 'The exact bounded-data disclosure should be exposed to React.' );
@@ -289,6 +296,7 @@ $source = file_get_contents( dirname( __DIR__ ) . '/includes/class-onboarding.ph
 llb_onboarding_assert( false !== $source, 'Onboarding source should be readable.' );
 llb_onboarding_assert( false === strpos( $source, 'add_options_page(' ), 'Onboarding must not register a duplicate site settings menu.' );
 llb_onboarding_assert( false === strpos( $source, 'add_submenu_page(' ), 'Onboarding must not register a duplicate network settings menu.' );
+llb_onboarding_assert( false !== strpos( $source, "if ( 'GET' !== \$method )" ), 'The onboarding redirect must remain limited to safe GET requests.' );
 llb_onboarding_assert( false !== strpos( $source, 'isset( $_POST[ $field ] )' ), 'Skipping privacy setup must preserve a posted telemetry choice.' );
 llb_onboarding_assert( false !== strpos( $source, "if ( 'back' === \$action )" ), 'Step two must provide a server-handled path back to privacy.' );
 

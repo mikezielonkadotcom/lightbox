@@ -22,7 +22,7 @@
  *     $updater->set_license_client( $license_client );
  *
  * @package UM\PluginUpdater
- * @version 4.6.0
+ * @version 4.6.1
  */
 
 namespace UM\PluginUpdater;
@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 // copy's classes win the class_exists race below — so the copy that DOES boot
 // can detect version skew and warn (see Updater::maybe_warn_version_skew).
 // Keep this literal in sync with @version.
-$GLOBALS['um_updater_sdk_copies']['4.6.0'][] = __FILE__;
+$GLOBALS['um_updater_sdk_copies']['4.6.1'][] = __FILE__;
 
 /**
  * Register a plugin for self-hosted updates.
@@ -418,6 +418,7 @@ class Updater {
 	private string $key_option;
 	private string $hash_expected_option;
 	private string $challenge_transient;
+	private string $challenge_expired_option;
 	private string $download_403_option;
 	private string $opportunistic_registration_option;
 	private Storage_Scope $scope;
@@ -425,15 +426,20 @@ class Updater {
 	private ?Feature_Telemetry $feature_telemetry = null;
 
 	/** SDK version reported in telemetry — must match the file's @version. */
-	public const SDK_VERSION = '4.6.0';
+	public const SDK_VERSION = '4.6.1';
 
 	private const CHALLENGE_TTL             = 15 * MINUTE_IN_SECONDS;
+	private const CHALLENGE_EXPIRED_WINDOW  = DAY_IN_SECONDS;
+	private const DOWNLOAD_403_WINDOW       = 15 * MINUTE_IN_SECONDS;
+	private const GLOBAL_PLUGIN_REGISTRY    = 'um_updater_registered_plugins';
+	private const GLOBAL_VERSION_DISMISSALS = 'um_updater_dismissed_version_skew';
 	private const REGISTRATION_RETRY_DELAYS = [
 		1 => 5 * MINUTE_IN_SECONDS,
 		2 => 30 * MINUTE_IN_SECONDS,
 		3 => 2 * HOUR_IN_SECONDS,
 	];
 	private const MAX_REGISTRATION_RETRIES = 3;
+	private const MAX_EXPIRED_CHALLENGES   = 3;
 
 	/** @var Telemetry_Opt_Out Per-plugin telemetry preference compatibility wrapper. */
 	private Telemetry_Opt_Out $opt_out;
@@ -454,6 +460,7 @@ class Updater {
 		$this->key_option = 'um_site_key_' . $this->slug;
 		$this->hash_expected_option = 'um_hash_expected_' . $this->slug;
 		$this->challenge_transient = 'um_challenge_' . $this->slug;
+		$this->challenge_expired_option = 'um_challenge_expired_' . $this->slug;
 		$this->download_403_option = 'um_download_403_' . $this->slug;
 		$this->opportunistic_registration_option = 'um_registration_last_attempt_' . $this->slug;
 		$this->scope      = new Storage_Scope( $this->basename );
@@ -463,6 +470,7 @@ class Updater {
 				$this->hash_expected_option,
 				'um_telemetry_consent_' . $this->slug,
 				'um_telemetry_optout_' . $this->slug,
+				$this->challenge_expired_option,
 				$this->download_403_option,
 				$this->opportunistic_registration_option,
 			],
@@ -517,6 +525,7 @@ class Updater {
 			'um_hash_expected_' . $slug,
 			'um_telemetry_consent_' . $slug,
 			'um_telemetry_optout_' . $slug,
+			'um_challenge_expired_' . $slug,
 			'um_download_403_' . $slug,
 			'um_registration_last_attempt_' . $slug,
 		];
@@ -530,6 +539,7 @@ class Updater {
 			}
 			wp_unschedule_hook( 'um_updater_challenge_verify_' . $slug );
 			wp_unschedule_hook( 'um_updater_challenge_init_retry_' . $slug );
+			self::remove_global_site_registration( $slug );
 		};
 
 		$clean_site();
@@ -575,6 +585,41 @@ class Updater {
 	}
 
 	/**
+	 * Record that a site has loaded an Update Machine-powered plugin.
+	 *
+	 * The registry lets slug-scoped uninstall cleanup know when it is safe to
+	 * remove cross-plugin SDK preferences without affecting another plugin.
+	 */
+	private function register_global_site_state(): void {
+		$plugins = (array) get_option( self::GLOBAL_PLUGIN_REGISTRY, [] );
+		if ( ! isset( $plugins[ $this->slug ] ) ) {
+			$plugins[ $this->slug ] = true;
+			update_option( self::GLOBAL_PLUGIN_REGISTRY, $plugins, false );
+		}
+	}
+
+	/**
+	 * Remove one plugin from the site registry and sweep global SDK state only
+	 * after the final registered plugin is uninstalled.
+	 */
+	private static function remove_global_site_registration( string $slug ): void {
+		$plugins = (array) get_option( self::GLOBAL_PLUGIN_REGISTRY, [] );
+		if ( empty( $plugins ) || ! isset( $plugins[ $slug ] ) ) {
+			return;
+		}
+
+		unset( $plugins[ $slug ] );
+
+		if ( empty( $plugins ) ) {
+			delete_option( self::GLOBAL_PLUGIN_REGISTRY );
+			delete_option( self::GLOBAL_VERSION_DISMISSALS );
+			return;
+		}
+
+		update_option( self::GLOBAL_PLUGIN_REGISTRY, $plugins, false );
+	}
+
+	/**
 	 * Warn admins when a newer SDK copy is bundled but an older copy loaded
 	 * first and is serving all plugins (first class_exists wins). Only copies
 	 * v4.4.0+ self-report, so pre-4.4 stragglers can't be detected — but the
@@ -597,7 +642,7 @@ class Updater {
 		}
 
 		$pair      = self::version_skew_pair( self::SDK_VERSION, $newest );
-		$dismissed = (array) get_option( 'um_updater_dismissed_version_skew', [] );
+		$dismissed = (array) get_option( self::GLOBAL_VERSION_DISMISSALS, [] );
 		if ( ! empty( $dismissed[ $pair ] ) ) {
 			return;
 		}
@@ -645,9 +690,9 @@ class Updater {
 			return;
 		}
 
-		$dismissed          = (array) get_option( 'um_updater_dismissed_version_skew', [] );
+		$dismissed          = (array) get_option( self::GLOBAL_VERSION_DISMISSALS, [] );
 		$dismissed[ $pair ] = true;
-		update_option( 'um_updater_dismissed_version_skew', $dismissed, false );
+		update_option( self::GLOBAL_VERSION_DISMISSALS, $dismissed, false );
 	}
 
 	/**
@@ -673,6 +718,8 @@ class Updater {
 	 * Hook into WordPress update system.
 	 */
 	public function init(): void {
+		$this->register_global_site_state();
+
 		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'check_update' ] );
 		add_filter( 'plugins_api', [ $this, 'plugin_info' ], 10, 3 );
 		add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 2 );
@@ -744,6 +791,7 @@ class Updater {
 					$this->hash_expected_option,
 					'um_telemetry_consent_' . $this->slug,
 					'um_telemetry_optout_' . $this->slug,
+					$this->challenge_expired_option,
 					$this->download_403_option,
 					$this->opportunistic_registration_option,
 				],
@@ -827,6 +875,7 @@ class Updater {
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! empty( $body['site_key'] ) ) {
 			$this->scope->update_option( $this->key_option, $body['site_key'] );
+			$this->clear_registration_recovery_state();
 		}
 	}
 
@@ -947,7 +996,7 @@ class Updater {
 
 		$challenge = $this->scope->get_transient( $this->challenge_transient );
 		if ( empty( $challenge['id'] ) ) {
-			$this->attempt_registration();
+			$this->maybe_attempt_opportunistic_registration();
 			return;
 		}
 
@@ -972,6 +1021,7 @@ class Updater {
 		if ( 201 === $code && ! empty( $body['site_key'] ) ) {
 			$this->scope->update_option( $this->key_option, $body['site_key'] );
 			$this->scope->delete_transient( $this->challenge_transient );
+			$this->clear_registration_recovery_state();
 			return;
 		}
 
@@ -981,8 +1031,7 @@ class Updater {
 		}
 
 		if ( 'expired' === ( $body['reason'] ?? '' ) ) {
-			$this->scope->delete_transient( $this->challenge_transient );
-			$this->attempt_registration();
+			$this->handle_expired_challenge();
 			return;
 		}
 
@@ -993,6 +1042,40 @@ class Updater {
 
 		// token_mismatch / anything else non-retryable — give up quietly.
 		$this->scope->delete_transient( $this->challenge_transient );
+	}
+
+	/**
+	 * Re-initialize an expired challenge at most three times per day.
+	 */
+	private function handle_expired_challenge(): void {
+		$this->scope->delete_transient( $this->challenge_transient );
+
+		$now   = time();
+		$state = $this->scope->get_option( $this->challenge_expired_option, [] );
+		if ( ! is_array( $state ) || empty( $state['started_at'] ) || ( $now - (int) $state['started_at'] ) >= self::CHALLENGE_EXPIRED_WINDOW ) {
+			$state = [
+				'count'      => 0,
+				'started_at' => $now,
+			];
+		}
+
+		$state['count'] = (int) ( $state['count'] ?? 0 ) + 1;
+		$this->scope->update_option( $this->challenge_expired_option, $state );
+
+		if ( $state['count'] >= self::MAX_EXPIRED_CHALLENGES ) {
+			$this->scope->update_option( $this->opportunistic_registration_option, $now );
+			return;
+		}
+
+		$this->attempt_registration();
+	}
+
+	/**
+	 * Clear retry and cooldown state after registration succeeds.
+	 */
+	private function clear_registration_recovery_state(): void {
+		$this->scope->delete_option( $this->challenge_expired_option );
+		$this->scope->delete_option( $this->opportunistic_registration_option );
 	}
 
 	/**
@@ -1217,13 +1300,20 @@ class Updater {
 			return;
 		}
 
-		$last_attempt = (int) $this->scope->get_option( $this->opportunistic_registration_option, 0 );
-		if ( $last_attempt > 0 && ( time() - $last_attempt ) < DAY_IN_SECONDS ) {
+		if ( $this->registration_is_cooling_down() ) {
 			return;
 		}
 
 		$this->scope->update_option( $this->opportunistic_registration_option, time() );
 		$this->attempt_registration();
+	}
+
+	/**
+	 * Whether registration recovery has already run in the last 24 hours.
+	 */
+	private function registration_is_cooling_down(): bool {
+		$last_attempt = (int) $this->scope->get_option( $this->opportunistic_registration_option, 0 );
+		return $last_attempt > 0 && ( time() - $last_attempt ) < DAY_IN_SECONDS;
 	}
 
 	/**
@@ -1533,23 +1623,33 @@ class Updater {
 	}
 
 	/**
-	 * After repeated 403s, assume a cloned domain-locked key and re-register.
+	 * After three 403s inside a short window, assume a cloned domain-locked key
+	 * and re-register through the normal 24-hour recovery cooldown.
 	 */
 	private function maybe_self_heal_domain_locked_key( $error ): void {
 		if ( ! $this->is_forbidden_download_error( $error ) || ! $this->get_site_key() ) {
 			return;
 		}
 
-		$count = (int) $this->scope->get_option( $this->download_403_option, 0 ) + 1;
-		if ( $count < 3 ) {
-			$this->scope->update_option( $this->download_403_option, $count );
+		$now   = time();
+		$state = $this->scope->get_option( $this->download_403_option, [] );
+		if ( ! is_array( $state ) || empty( $state['started_at'] ) || ( $now - (int) $state['started_at'] ) >= self::DOWNLOAD_403_WINDOW ) {
+			$state = [
+				'count'      => 0,
+				'started_at' => $now,
+			];
+		}
+
+		$state['count'] = (int) ( $state['count'] ?? 0 ) + 1;
+		if ( $state['count'] < 3 ) {
+			$this->scope->update_option( $this->download_403_option, $state );
 			return;
 		}
 
 		$this->scope->delete_option( $this->download_403_option );
 		$this->scope->delete_option( $this->key_option );
 		$this->scope->delete_transient( $this->cache_key );
-		$this->attempt_registration();
+		$this->maybe_attempt_opportunistic_registration();
 	}
 
 	/**

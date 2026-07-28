@@ -4,7 +4,7 @@ Tags: lightbox, images, gallery, photography, food blog
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.0
+Stable tag: 2.7.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,9 @@ Little Lightbox reports a typed snapshot of its selected mode, caption source, g
 The welcome setup asks about telemetry first. Sharing is enabled by default, can be unchecked without blocking setup, and remains editable from the plugin settings screen. Update checks and licensing keep working when sharing is disabled, optional callbacks do not run, and the update-check request body is empty. Network-active installations store one network preference managed from Network Admin; site-active installations store a separate preference per site. See the [Update Machine privacy policy](https://updatemachine.com/privacy).
 
 == Changelog ==
+
+= 2.7.1 =
+* Updated the bundled Update Machine SDK to v4.6.1 with safer registration recovery, bounded domain-lock self-healing, and final-plugin cleanup.
 
 = 2.7.0 =
 * Rebuilt the existing plugin settings screen with WordPress React components and kept welcome setup inside the same menu entry.

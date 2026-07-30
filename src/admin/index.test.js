@@ -142,7 +142,7 @@ const baseOptions = {
 
 const makeConfig = ( overrides = {} ) => ( {
 	network: false,
-	plugin: { name: 'This Little Lightbox of Mine', version: '2.7.1' },
+	plugin: { name: 'This Little Lightbox of Mine', version: '2.7.2' },
 	settings: {
 		actionUrl: '/wp-admin/options.php',
 		nonce: 'settings-nonce',
@@ -174,7 +174,7 @@ const makeConfig = ( overrides = {} ) => ( {
 		settingsUrl: '/wp-admin/options-general.php?page=little-lightbox',
 		sharingEnabled: true,
 		sharingFieldName: 'um_telemetry_consent_little-lightbox',
-		state: { status: 'in_progress', step: 1, version: '2.7.1' },
+		state: { status: 'in_progress', step: 1, version: '2.7.2' },
 		telemetryDetails: 'Bounded settings only.',
 	},
 	...overrides,
@@ -211,7 +211,7 @@ describe( 'Little Lightbox admin interface', () => {
 		const config = makeConfig( {
 			welcome: {
 				...makeConfig().welcome,
-				state: { status: 'in_progress', step: 2, version: '2.7.1' },
+				state: { status: 'in_progress', step: 2, version: '2.7.2' },
 			},
 		} );
 		const { container } = renderTest( <WelcomeWizard config={ config } /> );

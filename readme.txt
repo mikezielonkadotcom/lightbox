@@ -65,7 +65,7 @@ The welcome setup asks about telemetry first. Sharing is off by default, can be 
 == Changelog ==
 
 = 2.7.2 =
-* Added privacy-bounded eligible-render activity ranges using the Update Machine SDK v4.7.0 candidate. No browser tracking or additional request is added.
+* Added privacy-bounded eligible-render activity ranges using Update Machine SDK v4.7.0. No browser tracking or additional request is added.
 * Updated the exact telemetry disclosure and schema registry version for the three-plugin canary.
 * Changed the canary to explicit opt-in sharing, including mixed-SDK fail-closed compatibility.
 

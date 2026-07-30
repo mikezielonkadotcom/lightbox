@@ -139,6 +139,8 @@ class MZV_LB_Content {
 			return $content;
 		}
 
+		MZV_LB_Feature_Telemetry::record_eligible_render();
+
 		$counter = 0;
 		$mode    = $opts['lightbox_mode'];
 

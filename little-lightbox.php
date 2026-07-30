@@ -3,7 +3,7 @@
  * Plugin Name: This Little Lightbox of Mine
  * Plugin URI:  https://github.com/mikezielonkadotcom/little-lightbox
  * Description: Lightweight image lightbox for WordPress with CSS-Only and Enhanced modes, gallery browsing, captions, swipe, keyboard navigation, and WPRM integration.
- * Version:     2.7.1
+ * Version:     2.7.2
  * Author:      Mike Zielonka Ventures
  * Author URI:  https://mikezielonka.com
  * License:     GPL-2.0-or-later
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MZV_LB_VERSION', '2.7.1' );
+define( 'MZV_LB_VERSION', '2.7.2' );
 define( 'MZV_LB_FILE', __FILE__ );
 define( 'MZV_LB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MZV_LB_URL', plugin_dir_url( __FILE__ ) );
@@ -35,6 +35,7 @@ $GLOBALS['little_lightbox_updater'] = \UM\PluginUpdater\register( [
 	'update_url'                 => 'https://updatemachine.com/little-lightbox/update.json',
 	'server'                     => 'https://updatemachine.com',
 	'feature_telemetry'          => MZV_LB_Feature_Telemetry::config(),
+	'activity_telemetry'         => MZV_LB_Feature_Telemetry::activity_config(),
 	'telemetry_consent_mode'     => 'opt_out',
 	'telemetry_privacy_url'      => 'https://updatemachine.com/privacy',
 	'telemetry_data_description' => MZV_LB_Onboarding::telemetry_disclosure( false ),

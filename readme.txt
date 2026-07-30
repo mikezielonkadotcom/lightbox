@@ -4,7 +4,7 @@ Tags: lightbox, images, gallery, photography, food blog
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.1
+Stable tag: 2.7.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,11 +58,15 @@ That is the complete list. No admin email (removed in um-updater v4.1.0 because 
 
 Optional usage snapshots are for plugin feature flags/counters, not user data. The SDK keeps at most 20 keys, allows only short scalar values, caps the serialized object at 2KB, and drops invalid usage data instead of sending it.
 
-Little Lightbox reports a typed snapshot of its selected mode, caption source, gallery and animation settings, recipe-card and Jump to Recipe integrations, ad-layering toggle, and trigger icon size. The snapshot contains only booleans and declared enum values. It never includes captions, image details, posts, selectors, URLs, keys, or other free-form values.
+Little Lightbox reports a typed snapshot of its selected mode, caption source, gallery and animation settings, recipe-card and Jump to Recipe integrations, ad-layering toggle, and trigger icon size. It also reports only coarse ranges for how many UTC days eligible server-rendered images were transformed in the last 30 days and how recently that happened. This is not a browser-open or impression count. It sends no raw events, exact counts, dates, captions, image details, posts, selectors, URLs, keys, or other free-form values.
 
 The welcome setup asks about telemetry first. Sharing is enabled by default, can be unchecked without blocking setup, and remains editable from the plugin settings screen. Update checks and licensing keep working when sharing is disabled, optional callbacks do not run, and the update-check request body is empty. Network-active installations store one network preference managed from Network Admin; site-active installations store a separate preference per site. See the [Update Machine privacy policy](https://updatemachine.com/privacy).
 
 == Changelog ==
+
+= 2.7.2 =
+* Added privacy-bounded eligible-render activity ranges using the Update Machine SDK v4.7.0 candidate. No browser tracking or additional request is added.
+* Updated the exact telemetry disclosure and schema registry version for the three-plugin canary.
 
 = 2.7.1 =
 * Updated the bundled Update Machine SDK to v4.6.1 with safer registration recovery, bounded domain-lock self-healing, and final-plugin cleanup.

@@ -25,6 +25,8 @@ Lightweight image lightbox for WordPress with CSS-Only and Enhanced modes. Fast,
 
 The welcome setup is part of the plugin's single React-powered settings interface; it does not add a second WordPress menu item. It asks about optional Update Machine telemetry first, then offers the core lightbox mode, gallery, and animation choices. The telemetry choice and all plugin settings remain editable afterward. Network-active installations get one equivalent entry under Network Settings for the shared telemetry choice, while lightbox behavior remains site-specific.
 
+Update checks include a reviewed, bounded feature snapshot plus two coarse activity buckets: how many UTC days in the last 30 days the server transformed at least one eligible image, and how recently that happened. The plugin does not track browser opens or impressions and does not send raw events, exact counts, dates, image details, captions, post data, selectors, or URLs. Turning sharing off deletes the locally retained activity state immediately; updates keep working. Data is sent over HTTPS under the [Update Machine privacy policy](https://updatemachine.com/privacy).
+
 ## Excluding Images
 
 Add the CSS class `no-lightbox` to any image you want to exclude.

@@ -23,8 +23,38 @@ function llb_assert_same( $expected, $actual, string $message ): void {
 }
 
 $config = MZV_LB_Feature_Telemetry::config();
-llb_assert_same( 1, $config['schema_version'], 'Schema version mismatch.' );
+llb_assert_same( 2, $config['schema_version'], 'Schema version mismatch.' );
 llb_assert_same( 8, count( $config['fields'] ), 'Schema field count mismatch.' );
+llb_assert_same( 2, count( MZV_LB_Feature_Telemetry::activity_config()['fields'] ), 'Activity schema field count mismatch.' );
+
+$activity = new class() {
+	public array $metrics = [];
+	public function record_activity( string $metric ): void {
+		$this->metrics[] = $metric;
+	}
+};
+$GLOBALS['little_lightbox_updater'] = new class( $activity ) {
+	private object $activity;
+	public function __construct( object $activity ) {
+		$this->activity = $activity;
+	}
+	public function activity_telemetry(): object {
+		return $this->activity;
+	}
+};
+MZV_LB_Feature_Telemetry::record_eligible_render();
+llb_assert_same( [ 'eligible_render' ], $activity->metrics, 'Eligible render activity was not recorded.' );
+
+$GLOBALS['little_lightbox_updater'] = new class() {
+	public function activity_telemetry(): object {
+		return new class() {
+			public function record_activity( string $metric ): void {
+				throw new RuntimeException( 'simulated telemetry failure: ' . $metric );
+			}
+		};
+	}
+};
+MZV_LB_Feature_Telemetry::record_eligible_render();
 
 $defaults = MZV_LB_Feature_Telemetry::collect( 'little-lightbox' );
 llb_assert_same( 'enhanced', $defaults['lightbox_mode'], 'Default mode mismatch.' );

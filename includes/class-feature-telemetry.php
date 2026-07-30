@@ -14,7 +14,7 @@ class MZV_LB_Feature_Telemetry {
 	 */
 	public static function config(): array {
 		return [
-			'schema_version' => 1,
+			'schema_version' => 2,
 			'fields'         => [
 				'allow_ads_above_lightbox' => [ 'type' => 'boolean' ],
 				'animations_enabled'       => [ 'type' => 'boolean' ],
@@ -27,6 +27,36 @@ class MZV_LB_Feature_Telemetry {
 			],
 			'callback'       => [ self::class, 'collect' ],
 		];
+	}
+
+	/**
+	 * Return reviewed activity fields merged into schema version 2 by the SDK.
+	 */
+	public static function activity_config(): array {
+		return [
+			'fields' => [
+				'eligible_render_active_days_30d' => [ 'metric' => 'eligible_render', 'summary' => 'active_days' ],
+				'eligible_render_recency'         => [ 'metric' => 'eligible_render', 'summary' => 'recency' ],
+			],
+		];
+	}
+
+	/**
+	 * Record only that at least one eligible image was transformed this request.
+	 */
+	public static function record_eligible_render(): void {
+		try {
+			$updater = $GLOBALS['little_lightbox_updater'] ?? null;
+			if ( ! is_object( $updater ) || ! method_exists( $updater, 'activity_telemetry' ) ) {
+				return;
+			}
+			$activity = $updater->activity_telemetry();
+			if ( is_object( $activity ) && method_exists( $activity, 'record_activity' ) ) {
+				$activity->record_activity( 'eligible_render' );
+			}
+		} catch ( \Throwable $e ) {
+			// Optional telemetry must never alter rendered content.
+		}
 	}
 
 	/**

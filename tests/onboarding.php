@@ -4,7 +4,7 @@
  */
 
 define( 'ABSPATH', __DIR__ );
-define( 'MZV_LB_VERSION', '2.7.1' );
+define( 'MZV_LB_VERSION', '2.7.2' );
 define( 'MZV_LB_FILE', dirname( __DIR__ ) . '/little-lightbox.php' );
 
 $GLOBALS['llb_options']      = [];
@@ -241,7 +241,7 @@ unset( $_SERVER['REQUEST_METHOD'] );
 
 $privacy_data = $wizard->client_data();
 llb_onboarding_assert( true === $privacy_data['sharingEnabled'], 'Opt-out mode should start with sharing enabled.' );
-llb_onboarding_assert( false !== strpos( $privacy_data['telemetryDetails'], 'bounded Little Lightbox values' ), 'The exact bounded-data disclosure should be exposed to React.' );
+llb_onboarding_assert( false !== strpos( $privacy_data['telemetryDetails'], 'coarse eligible-render active-day and recency ranges' ), 'The exact bounded-data disclosure should be exposed to React.' );
 llb_onboarding_assert( 'https://updatemachine.com/privacy' === $privacy_data['privacyUrl'], 'The privacy-policy URL should be exposed to React.' );
 llb_onboarding_assert( false !== strpos( $privacy_data['actionUrl'], 'page=little-lightbox' ), 'Welcome must use the existing plugin settings slug.' );
 llb_onboarding_assert( false !== strpos( $privacy_data['actionUrl'], 'view=welcome' ), 'Welcome must be a view within the plugin settings interface.' );

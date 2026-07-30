@@ -13,7 +13,7 @@ class MZV_LB_Onboarding {
 	const STATE_OPTION = 'mzv_lb_onboarding_state';
 	const NONCE_ACTION = 'mzv_lb_onboarding';
 	const NONCE_NAME   = '_mzv_lb_onboarding_nonce';
-	const TELEMETRY_DISCLOSURE = 'Shares the site URL and name; plugin, SDK, WordPress, and PHP versions; environment and multisite scope; and bounded Little Lightbox values for mode, caption source, gallery, animations, recipe-card images, Jump to Recipe, ad layering, and icon size. It never shares post content, image details, user data, license or site keys, arbitrary URLs, or free-form text. Updates keep working when sharing is off.';
+	const TELEMETRY_DISCLOSURE = 'Shares the site URL and name; plugin, SDK, WordPress, and PHP versions; environment and multisite scope; bounded Little Lightbox settings; and coarse eligible-render active-day and recency ranges. It does not count browser opens or send raw events, dates, post content, image details, user data, license or site keys, arbitrary URLs, or free-form text. Updates keep working when sharing is off.';
 
 	/** @var MZV_LB_Settings */
 	private $settings;
@@ -80,7 +80,7 @@ class MZV_LB_Onboarding {
 		if ( ! $translate ) {
 			return self::TELEMETRY_DISCLOSURE;
 		}
-		return __( 'Shares the site URL and name; plugin, SDK, WordPress, and PHP versions; environment and multisite scope; and bounded Little Lightbox values for mode, caption source, gallery, animations, recipe-card images, Jump to Recipe, ad layering, and icon size. It never shares post content, image details, user data, license or site keys, arbitrary URLs, or free-form text. Updates keep working when sharing is off.', 'little-lightbox' );
+		return __( 'Shares the site URL and name; plugin, SDK, WordPress, and PHP versions; environment and multisite scope; bounded Little Lightbox settings; and coarse eligible-render active-day and recency ranges. It does not count browser opens or send raw events, dates, post content, image details, user data, license or site keys, arbitrary URLs, or free-form text. Updates keep working when sharing is off.', 'little-lightbox' );
 	}
 
 	/**

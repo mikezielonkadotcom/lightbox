@@ -60,13 +60,14 @@ Optional usage snapshots are for plugin feature flags/counters, not user data. T
 
 Little Lightbox reports a typed snapshot of its selected mode, caption source, gallery and animation settings, recipe-card and Jump to Recipe integrations, ad-layering toggle, and trigger icon size. It also reports only coarse ranges for how many UTC days eligible server-rendered images were transformed in the last 30 days and how recently that happened. This is not a browser-open or impression count. It sends no raw events, exact counts, dates, captions, image details, posts, selectors, URLs, keys, or other free-form values.
 
-The welcome setup asks about telemetry first. Sharing is enabled by default, can be unchecked without blocking setup, and remains editable from the plugin settings screen. Update checks and licensing keep working when sharing is disabled, optional callbacks do not run, and the update-check request body is empty. Network-active installations store one network preference managed from Network Admin; site-active installations store a separate preference per site. See the [Update Machine privacy policy](https://updatemachine.com/privacy).
+The welcome setup asks about telemetry first. Sharing is off by default, can be explicitly enabled without blocking setup, and remains editable from the plugin settings screen. Update checks and licensing keep working when sharing is disabled, optional callbacks do not run, and the update-check request body is empty. Network-active installations store one network preference managed from Network Admin; site-active installations store a separate preference per site. See the [Update Machine privacy policy](https://updatemachine.com/privacy).
 
 == Changelog ==
 
 = 2.7.2 =
 * Added privacy-bounded eligible-render activity ranges using the Update Machine SDK v4.7.0 candidate. No browser tracking or additional request is added.
 * Updated the exact telemetry disclosure and schema registry version for the three-plugin canary.
+* Changed the canary to explicit opt-in sharing, including mixed-SDK fail-closed compatibility.
 
 = 2.7.1 =
 * Updated the bundled Update Machine SDK to v4.6.1 with safer registration recovery, bounded domain-lock self-healing, and final-plugin cleanup.

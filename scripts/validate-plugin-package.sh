@@ -112,7 +112,7 @@ php -r '
   }
 '
 
-EXPECTED_UPDATER_SHA256="1896b5f22039f648e61da0f10756e9fa46c0decadb135dca16327160bbac437c"
+EXPECTED_UPDATER_SHA256="1d3b25f668c58164bc1a5b23eeb5b36c1332e6ce5ccde258d274e3d0af3b0cf7"
 UPDATER_SHA256="$(sha256sum "includes/um-updater.php" | awk '{print $1}')"
 if [ "$UPDATER_SHA256" != "$EXPECTED_UPDATER_SHA256" ]; then
   echo "::error::includes/um-updater.php does not match the reviewed um-updater v4.7.0 candidate" >&2

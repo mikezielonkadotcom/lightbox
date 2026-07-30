@@ -56,7 +56,7 @@ function is_allowed_endpoint( $url, bool $allow_insecure_localhost = false ): bo
 	}
 
 	$scheme = strtolower( (string) $parts['scheme'] );
-	$host   = strtolower( rtrim( (string) $parts['host'], '.' ) );
+	$host   = trim( strtolower( rtrim( (string) $parts['host'], '.' ) ), '[]' );
 	if ( 'https' === $scheme ) {
 		return true;
 	}

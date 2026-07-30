@@ -225,7 +225,7 @@ final class LLB_Test_Legacy_Updater {
 }
 
 $settings   = new MZV_LB_Settings();
-$preference = new LLB_Test_Preference( true );
+$preference = new LLB_Test_Preference( false );
 $wizard     = new MZV_LB_Onboarding( $settings, new LLB_Test_Updater( $preference ) );
 
 MZV_LB_Onboarding::mark_pending( false );
@@ -240,13 +240,15 @@ llb_onboarding_assert( 'pending' === $state['status'] && 1 === $state['step'], '
 unset( $_SERVER['REQUEST_METHOD'] );
 
 $privacy_data = $wizard->client_data();
-llb_onboarding_assert( true === $privacy_data['sharingEnabled'], 'Opt-out mode should start with sharing enabled.' );
+llb_onboarding_assert( false === $privacy_data['sharingEnabled'], 'Opt-in mode should start with sharing disabled.' );
 llb_onboarding_assert( false !== strpos( $privacy_data['telemetryDetails'], 'coarse eligible-render active-day and recency ranges' ), 'The exact bounded-data disclosure should be exposed to React.' );
 llb_onboarding_assert( 'https://updatemachine.com/privacy' === $privacy_data['privacyUrl'], 'The privacy-policy URL should be exposed to React.' );
 llb_onboarding_assert( false !== strpos( $privacy_data['actionUrl'], 'page=little-lightbox' ), 'Welcome must use the existing plugin settings slug.' );
 llb_onboarding_assert( false !== strpos( $privacy_data['actionUrl'], 'view=welcome' ), 'Welcome must be a view within the plugin settings interface.' );
 llb_onboarding_assert( false === strpos( $privacy_data['actionUrl'], 'little-lightbox-setup' ), 'The retired duplicate menu slug must not remain.' );
 
+llb_onboarding_invoke( $wizard, 'set_sharing_enabled', [ true ] );
+llb_onboarding_assert( $preference->enabled, 'An explicit positive sharing choice should enable telemetry.' );
 llb_onboarding_invoke( $wizard, 'set_sharing_enabled', [ false ] );
 llb_onboarding_assert( ! $preference->enabled, 'The positive sharing choice should persist through the SDK preference.' );
 

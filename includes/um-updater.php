@@ -22,7 +22,7 @@
  *     $updater->set_license_client( $license_client );
  *
  * @package UM\PluginUpdater
- * @version 4.7.0
+ * @version 4.7.1
  */
 
 namespace UM\PluginUpdater;
@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 // copy's classes win the class_exists race below — so the copy that DOES boot
 // can detect version skew and warn (see Updater::maybe_warn_version_skew).
 // Keep this literal in sync with @version.
-$GLOBALS['um_updater_sdk_copies']['4.7.0'][] = __FILE__;
+$GLOBALS['um_updater_sdk_copies']['4.7.1'][] = __FILE__;
 
 /**
  * Validate an SDK endpoint before any hooks or requests are registered.
@@ -745,7 +745,10 @@ class Feature_Telemetry {
 		if ( ! is_int( $version ) || $version < 1 || $version > self::MAX_SCHEMA_VERSION ) {
 			return null;
 		}
-		if ( ! is_array( $fields ) || $this->is_list_array( $fields ) || empty( $fields ) || count( $fields ) > self::MAX_FIELDS ) {
+		if ( ! is_array( $fields ) || $this->is_list_array( $fields ) || count( $fields ) > self::MAX_FIELDS ) {
+			return null;
+		}
+		if ( empty( $fields ) && ( null === $this->activity || empty( $this->activity->schema_fields() ) ) ) {
 			return null;
 		}
 
@@ -908,7 +911,7 @@ class Updater {
 	private ?Activity_Telemetry $activity_telemetry = null;
 
 	/** SDK version reported in telemetry — must match the file's @version. */
-	public const SDK_VERSION = '4.7.0';
+	public const SDK_VERSION = '4.7.1';
 
 	private const CHALLENGE_TTL             = 15 * MINUTE_IN_SECONDS;
 	private const CHALLENGE_EXPIRED_WINDOW  = DAY_IN_SECONDS;

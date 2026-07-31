@@ -4,7 +4,7 @@ Tags: lightbox, images, gallery, photography, food blog
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.2
+Stable tag: 2.7.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,18 +64,18 @@ The welcome setup asks about telemetry first. Sharing is off by default, can be 
 
 == Changelog ==
 
-= 2.7.2 =
-* Added privacy-bounded eligible-render activity ranges using Update Machine SDK v4.7.0. No browser tracking or additional request is added.
+= 2.7.3 =
+* Added privacy-bounded eligible-render activity ranges using Update Machine SDK v4.7.1. No browser tracking or additional request is added.
 * Updated the exact telemetry disclosure and schema registry version for the three-plugin canary.
 * Changed the canary to explicit opt-in sharing, including mixed-SDK fail-closed compatibility.
 
 = 2.7.1 =
-* Updated the bundled Update Machine SDK to v4.6.1 with safer registration recovery, bounded domain-lock self-healing, and final-plugin cleanup.
+* Updated the bundled Update Machine SDK to v4.7.1 with safer registration recovery, bounded domain-lock self-healing, and final-plugin cleanup.
 
 = 2.7.0 =
 * Rebuilt the existing plugin settings screen with WordPress React components and kept welcome setup inside the same menu entry.
 * Added a resumable two-step welcome setup with telemetry as the first question and permanent access from plugin settings.
-* Added explicit default-on telemetry sharing with a clear opt-out, exact bounded-data disclosure, and privacy-policy link.
+* Added explicit opt-in telemetry sharing, exact bounded-data disclosure, and privacy-policy link.
 * Added network-scoped onboarding and telemetry controls for network-active multisite installations.
 * Fixed activation on WordPress 6.0 and older WP-CLI paths that pass a nullable network flag.
 * Updated the bundled Update Machine updater SDK to the tagged v4.6.0 consent-mode release while retaining mixed-load compatibility with v4.5.0.
@@ -98,7 +98,7 @@ The welcome setup asks about telemetry first. Sharing is off by default, can be 
 
 = 2.6.0 =
 * Dev: Updated the bundled Update Machine updater SDK to v4.4.0.
-* Dev: Added telemetry opt-out cleanup on uninstall and package validation coverage for `uninstall.php`.
+* Dev: Added telemetry preference cleanup on uninstall and package validation coverage for `uninstall.php`.
 
 = 2.5.0 =
 * New: Added a desktop trigger icon setting that keeps the magnifier visible in the image corner instead of only showing it on hover.

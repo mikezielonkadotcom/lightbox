@@ -4,7 +4,7 @@
  */
 
 define( 'ABSPATH', __DIR__ );
-define( 'MZV_LB_VERSION', '2.7.2' );
+define( 'MZV_LB_VERSION', '2.7.3' );
 define( 'MZV_LB_FILE', dirname( __DIR__ ) . '/little-lightbox.php' );
 
 $GLOBALS['llb_options']      = [];

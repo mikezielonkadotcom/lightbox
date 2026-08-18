@@ -156,6 +156,24 @@ jobs:
           echo "requires_php=${REQUIRES_PHP}" >> "$GITHUB_OUTPUT"
           echo "tested=${TESTED}" >> "$GITHUB_OUTPUT"
 
+      - name: Extract changelog from readme.txt
+        id: changelog
+        run: |
+          VERSION="${{ needs.release.outputs.version }}"
+          CHANGELOG="$(awk -v ver="$VERSION" '
+            /^= / { if (found) exit; if (index($0, ver)) found=1; next }
+            found { print }
+          ' readme.txt)"
+          if [ -z "$CHANGELOG" ]; then
+            echo "::error::No '= ${VERSION} =' changelog block in readme.txt — add release notes before tagging"
+            exit 1
+          fi
+          {
+            echo "notes<<CHANGELOG_EOF"
+            echo "$CHANGELOG"
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Publish to Update Machine
         run: |
           SLUG="${{ needs.release.outputs.slug }}"
@@ -178,7 +196,7 @@ jobs:
             -F "requires_php=${{ steps.php_meta.outputs.requires_php }}" \
             -F "tested=${{ steps.php_meta.outputs.tested }}" \
             -F "description=${{ steps.php_meta.outputs.description }}" \
-            -F "changelog=See GitHub releases for full changelog." \
+            -F "changelog=${CHANGELOG_NOTES}" \
             -F "sha256=${SHA256}" \
             -F "file=@${ZIP}")
 
@@ -192,4 +210,5 @@ jobs:
 
           echo "✅ Published ${SLUG} v${VERSION} to Update Machine"
         env:
+          CHANGELOG_NOTES: ${{ steps.changelog.outputs.notes }}
           UM_ADMIN_TOKEN: ${{ secrets.UM_ADMIN_TOKEN }}

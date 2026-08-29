@@ -4,7 +4,7 @@ Tags: lightbox, images, gallery, photography, food blog
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.3
+Stable tag: 2.7.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,9 @@ Little Lightbox reports a typed snapshot of its selected mode, caption source, g
 The welcome setup asks about telemetry first. Sharing is off by default, can be explicitly enabled without blocking setup, and remains editable from the plugin settings screen. Update checks and licensing keep working when sharing is disabled, optional callbacks do not run, and the update-check request body is empty. Network-active installations store one network preference managed from Network Admin; site-active installations store a separate preference per site. See the [Update Machine privacy policy](https://updatemachine.com/privacy).
 
 == Changelog ==
+
+= 2.7.4 =
+* Changed: Updated the bundled Update Machine SDK to v4.8.0.
 
 = 2.7.3 =
 * Added privacy-bounded eligible-render activity ranges using Update Machine SDK v4.7.1. No browser tracking or additional request is added.

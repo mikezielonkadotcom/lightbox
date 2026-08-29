@@ -112,10 +112,10 @@ php -r '
   }
 '
 
-EXPECTED_UPDATER_SHA256="68613428552aea350352763c1334d1ce41e58712b2b24ccef24b7a8640bdbb8c"
+EXPECTED_UPDATER_SHA256="2eb5b58318cba530a7a9806e4a8c838f1ddba2ac35339bab502495ae61139fe7"
 UPDATER_SHA256="$(sha256sum "includes/um-updater.php" | awk '{print $1}')"
 if [ "$UPDATER_SHA256" != "$EXPECTED_UPDATER_SHA256" ]; then
-  echo "::error::includes/um-updater.php does not match the tagged um-updater v4.7.1 artifact" >&2
+  echo "::error::includes/um-updater.php does not match the tagged um-updater v4.8.0 artifact" >&2
   exit 1
 fi
 
@@ -178,7 +178,7 @@ PY
 
   ARCHIVED_UPDATER_SHA256="$(unzip -p "$ZIP_PATH" "$SLUG/includes/um-updater.php" | sha256sum | awk '{print $1}')"
   if [ "$ARCHIVED_UPDATER_SHA256" != "$EXPECTED_UPDATER_SHA256" ]; then
-    echo "::error::ZIP updater does not match the tagged um-updater v4.7.1 artifact" >&2
+    echo "::error::ZIP updater does not match the tagged um-updater v4.8.0 artifact" >&2
     exit 1
   fi
 
